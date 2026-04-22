@@ -1,0 +1,9 @@
+ El volumen de la unidad C no tiene etiqueta.
+ El n£mero de serie del volumen es: E0E2-A028
+
+ Directorio de C:\Users\Usuario\OneDrive\Desktop\PRUEBAS_POWER_AUTOMATE
+
+14/04/2026  10:28             9.101 Datos.xlsx
+10/04/2026  10:24             7.959 Pruebas_Excel.xlsx
+               2 archivos         17.060 bytes
+               0 dirs  357.492.166.656 bytes libres
