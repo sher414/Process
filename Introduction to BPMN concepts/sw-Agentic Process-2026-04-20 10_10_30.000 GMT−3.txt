@@ -1,0 +1,8 @@
+2026-04-20 10:10:10.251 GMT−3:	Info: Preparing projects for debugging...
+2026-04-20 10:10:11.566 GMT−3:	Info: Preparing projects for debugging completed
+2026-04-20 10:10:11.821 GMT−3:	Info: Provisioning solution...
+2026-04-20 10:10:11.830 GMT−3:	Info: Provisioning projects skipped: solution contains only the current project.
+2026-04-20 10:10:12.071 GMT−3:	Info: Provisioning resources
+2026-04-20 10:10:12.859 GMT−3:	Info: Provisioning solution completed
+2026-04-20 10:10:15.000 GMT−3:	Info: Execution status changed to Running
+2026-04-20 10:10:30.000 GMT−3:	Info: Execution status changed to Succeeded
