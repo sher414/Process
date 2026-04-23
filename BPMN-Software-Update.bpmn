@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bpmn:definitions xmlns:bpmn="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:uipath="http://uipath.org/schema/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:dc="http://www.omg.org/spec/DD/20100524/DC" xmlns:di="http://www.omg.org/spec/DD/20100524/DI" id="sample-diagram" targetNamespace="http://www.omg.org/spec/BPMN/20100524/MODEL" exporter="UiPath (https://bpmn.uipath.com)" exporterVersion="a0f9348b">
+  <bpmn:process id="Process_1" name="Process" isExecutable="false">
+    <bpmn:extensionElements>
+      <uipath:migrationVersion version="11.5" />
+    </bpmn:extensionElements>
+    <bpmn:startEvent id="Event_start" name="Update Software">
+      <bpmn:extensionElements>
+        <uipath:entryPointId value="fdd216a3-e6b9-439e-aa06-3a1473e5ee85" />
+      </bpmn:extensionElements>
+      <bpmn:outgoing>edge_Event_start-Activity_X3rvmM</bpmn:outgoing>
+    </bpmn:startEvent>
+    <bpmn:task id="Activity_X3rvmM" name="Check Software Update">
+      <bpmn:incoming>edge_Event_start-Activity_X3rvmM</bpmn:incoming>
+      <bpmn:incoming>edge_FItBEB</bpmn:incoming>
+      <bpmn:outgoing>edge_2J1ec5</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_W5u3Bw" name="Is software Update available?">
+      <bpmn:incoming>edge_2J1ec5</bpmn:incoming>
+      <bpmn:outgoing>edge_Gateway_W5u3Bw-Activity_nUvtSX</bpmn:outgoing>
+      <bpmn:outgoing>edge_Gateway_W5u3Bw-Activity_PhYqGb</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_nUvtSX" name="Download Software">
+      <bpmn:incoming>edge_Gateway_W5u3Bw-Activity_nUvtSX</bpmn:incoming>
+      <bpmn:outgoing>edge_Activity_nUvtSX-Activity_T7YJXQ</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_PhYqGb" name="Contact IT">
+      <bpmn:incoming>edge_Gateway_W5u3Bw-Activity_PhYqGb</bpmn:incoming>
+      <bpmn:incoming>edge_UvrGRR</bpmn:incoming>
+      <bpmn:outgoing>edge_Activity_PhYqGb-Event_H5hrdv</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_T7YJXQ" name="Instal Software">
+      <bpmn:incoming>edge_Activity_nUvtSX-Activity_T7YJXQ</bpmn:incoming>
+      <bpmn:outgoing>edge_Activity_T7YJXQ-Activity_U0EJSw</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:task id="Activity_U0EJSw" name="Restart Laptop">
+      <bpmn:incoming>edge_Activity_T7YJXQ-Activity_U0EJSw</bpmn:incoming>
+      <bpmn:outgoing>edge_Activity_U0EJSw-Gateway_MX2elN</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:exclusiveGateway id="Gateway_MX2elN" name="Is software updated?">
+      <bpmn:incoming>edge_Activity_U0EJSw-Gateway_MX2elN</bpmn:incoming>
+      <bpmn:outgoing>edge_UvrGRR</bpmn:outgoing>
+      <bpmn:outgoing>edge_Gateway_MX2elN-Activity_UxNjfd</bpmn:outgoing>
+    </bpmn:exclusiveGateway>
+    <bpmn:task id="Activity_UxNjfd" name="Confirm Update">
+      <bpmn:incoming>edge_Gateway_MX2elN-Activity_UxNjfd</bpmn:incoming>
+      <bpmn:outgoing>edge_Activity_UxNjfd-Event_Eu3eyG</bpmn:outgoing>
+    </bpmn:task>
+    <bpmn:endEvent id="Event_Eu3eyG" name="Software Updated">
+      <bpmn:incoming>edge_Activity_UxNjfd-Event_Eu3eyG</bpmn:incoming>
+    </bpmn:endEvent>
+    <bpmn:intermediateThrowEvent id="Event_H5hrdv" name="Wait for IT instructions">
+      <bpmn:incoming>edge_Activity_PhYqGb-Event_H5hrdv</bpmn:incoming>
+      <bpmn:outgoing>edge_FItBEB</bpmn:outgoing>
+    </bpmn:intermediateThrowEvent>
+    <bpmn:sequenceFlow id="edge_Event_start-Activity_X3rvmM" sourceRef="Event_start" targetRef="Activity_X3rvmM" />
+    <bpmn:sequenceFlow id="edge_2J1ec5" sourceRef="Activity_X3rvmM" targetRef="Gateway_W5u3Bw" />
+    <bpmn:sequenceFlow id="edge_Gateway_W5u3Bw-Activity_nUvtSX" name="Yes" sourceRef="Gateway_W5u3Bw" targetRef="Activity_nUvtSX" />
+    <bpmn:sequenceFlow id="edge_Gateway_W5u3Bw-Activity_PhYqGb" name="No" sourceRef="Gateway_W5u3Bw" targetRef="Activity_PhYqGb" />
+    <bpmn:sequenceFlow id="edge_Activity_nUvtSX-Activity_T7YJXQ" sourceRef="Activity_nUvtSX" targetRef="Activity_T7YJXQ" />
+    <bpmn:sequenceFlow id="edge_Activity_T7YJXQ-Activity_U0EJSw" sourceRef="Activity_T7YJXQ" targetRef="Activity_U0EJSw" />
+    <bpmn:sequenceFlow id="edge_Activity_U0EJSw-Gateway_MX2elN" sourceRef="Activity_U0EJSw" targetRef="Gateway_MX2elN" />
+    <bpmn:sequenceFlow id="edge_UvrGRR" name="No" sourceRef="Gateway_MX2elN" targetRef="Activity_PhYqGb" />
+    <bpmn:sequenceFlow id="edge_Gateway_MX2elN-Activity_UxNjfd" name="Yes" sourceRef="Gateway_MX2elN" targetRef="Activity_UxNjfd" />
+    <bpmn:sequenceFlow id="edge_Activity_UxNjfd-Event_Eu3eyG" sourceRef="Activity_UxNjfd" targetRef="Event_Eu3eyG" />
+    <bpmn:sequenceFlow id="edge_Activity_PhYqGb-Event_H5hrdv" sourceRef="Activity_PhYqGb" targetRef="Event_H5hrdv" />
+    <bpmn:sequenceFlow id="edge_FItBEB" name="Restart Laptop when Instructed" sourceRef="Event_H5hrdv" targetRef="Activity_X3rvmM" />
+  </bpmn:process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_1">
+    <bpmndi:BPMNPlane id="BPMNPlane_1" bpmnElement="Process_1">
+      <bpmndi:BPMNShape id="S_Event_start" bpmnElement="Event_start">
+        <dc:Bounds x="609" y="132" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="609" y="173" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Activity_X3rvmM" bpmnElement="Activity_X3rvmM">
+        <dc:Bounds x="693" y="110" width="100" height="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="693" y="195" width="100" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gateway_W5u3Bw" bpmnElement="Gateway_W5u3Bw">
+        <dc:Bounds x="718" y="278" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="718" y="333" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Activity_nUvtSX" bpmnElement="Activity_nUvtSX">
+        <dc:Bounds x="816" y="263" width="100" height="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="816" y="348" width="100" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Activity_PhYqGb" bpmnElement="Activity_PhYqGb">
+        <dc:Bounds x="1235" y="454" width="100" height="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1235" y="539" width="100" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Activity_T7YJXQ" bpmnElement="Activity_T7YJXQ">
+        <dc:Bounds x="964" y="263" width="100" height="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="964" y="348" width="100" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Activity_U0EJSw" bpmnElement="Activity_U0EJSw">
+        <dc:Bounds x="1112" y="263" width="100" height="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1112" y="348" width="100" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Gateway_MX2elN" bpmnElement="Gateway_MX2elN">
+        <dc:Bounds x="1260" y="278" width="50" height="50" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1260" y="333" width="50" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Activity_UxNjfd" bpmnElement="Activity_UxNjfd">
+        <dc:Bounds x="1358" y="263" width="100" height="80" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1358" y="348" width="100" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Event_Eu3eyG" bpmnElement="Event_Eu3eyG">
+        <dc:Bounds x="1506" y="285" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1506" y="326" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape id="S_Event_H5hrdv" bpmnElement="Event_H5hrdv">
+        <dc:Bounds x="1545" y="476" width="36" height="36" />
+        <bpmndi:BPMNLabel>
+          <dc:Bounds x="1545" y="517" width="36" height="14" />
+        </bpmndi:BPMNLabel>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_Event_start-Activity_X3rvmM" bpmnElement="edge_Event_start-Activity_X3rvmM">
+        <di:waypoint x="645" y="150" />
+        <di:waypoint x="693" y="150" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_2J1ec5" bpmnElement="edge_2J1ec5">
+        <di:waypoint x="743" y="190" />
+        <di:waypoint x="743" y="278" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_Gateway_W5u3Bw-Activity_nUvtSX" bpmnElement="edge_Gateway_W5u3Bw-Activity_nUvtSX">
+        <di:waypoint x="768" y="303" />
+        <di:waypoint x="816" y="303" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_Gateway_W5u3Bw-Activity_PhYqGb" bpmnElement="edge_Gateway_W5u3Bw-Activity_PhYqGb">
+        <di:waypoint x="743" y="328" />
+        <di:waypoint x="743" y="494" />
+        <di:waypoint x="1235" y="494" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_Activity_nUvtSX-Activity_T7YJXQ" bpmnElement="edge_Activity_nUvtSX-Activity_T7YJXQ">
+        <di:waypoint x="916" y="303" />
+        <di:waypoint x="964" y="303" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_Activity_T7YJXQ-Activity_U0EJSw" bpmnElement="edge_Activity_T7YJXQ-Activity_U0EJSw">
+        <di:waypoint x="1064" y="303" />
+        <di:waypoint x="1112" y="303" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_Activity_U0EJSw-Gateway_MX2elN" bpmnElement="edge_Activity_U0EJSw-Gateway_MX2elN">
+        <di:waypoint x="1212" y="303" />
+        <di:waypoint x="1260" y="303" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_UvrGRR" bpmnElement="edge_UvrGRR">
+        <di:waypoint x="1285" y="328" />
+        <di:waypoint x="1285" y="454" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_Gateway_MX2elN-Activity_UxNjfd" bpmnElement="edge_Gateway_MX2elN-Activity_UxNjfd">
+        <di:waypoint x="1310" y="303" />
+        <di:waypoint x="1358" y="303" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_Activity_UxNjfd-Event_Eu3eyG" bpmnElement="edge_Activity_UxNjfd-Event_Eu3eyG">
+        <di:waypoint x="1458" y="303" />
+        <di:waypoint x="1506" y="303" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_Activity_PhYqGb-Event_H5hrdv" bpmnElement="edge_Activity_PhYqGb-Event_H5hrdv">
+        <di:waypoint x="1335" y="494" />
+        <di:waypoint x="1545" y="494" />
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge id="BPMNEdge_edge_FItBEB" bpmnElement="edge_FItBEB">
+        <di:waypoint x="1581" y="494" />
+        <di:waypoint x="1601" y="494" />
+        <di:waypoint x="1601" y="150" />
+        <di:waypoint x="793" y="150" />
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</bpmn:definitions>
