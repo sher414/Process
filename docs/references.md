@@ -1,3 +1,13 @@
+
+## 🎭 UML — Diagramas de Casos de Uso ## 🎭 UML / Modelado
+
+### PlantUML — Sintaxis de Diagramas de Casos de Uso
+Referencia oficial para crear diagramas de casos de uso mediante PlantUML.  
+Incluye actores, relaciones, extensiones, inclusiones, notas, estereotipos y ejemplos completos.
+
+URL: https://plantuml.com/es/use-case-diagram
+
+
 # 📚 Referencias y Recursos Clave
 
 Este documento reúne enlaces importantes utilizados como base conceptual, técnica o metodológica dentro del repositorio.  
