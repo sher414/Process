@@ -1,127 +1,184 @@
-🔵 1️⃣ Procesos Operativos (core del negocio) — Profundización completa
-Los procesos operativos son el corazón del negocio: todo lo que produce valor directo para el cliente.
+# 🔵 1️⃣ Procesos Operativos (core del negocio) — Profundización completa
+
+Los procesos operativos son el corazón del negocio: todo lo que produce valor directo para el cliente.  
 Por eso, cualquier mejora en esta categoría tiene impacto inmediato en costos, tiempos, calidad y experiencia.
 
-🧩 ¿Qué caracteriza a un proceso operativo?
+---
+
+## 🧩 ¿Qué caracteriza a un proceso operativo?
+
 Un proceso operativo suele tener:
 
-Alto volumen (miles de transacciones por día)
+- Alto volumen (miles de transacciones por día)
+- Repetición (mismo flujo, muchas veces)
+- Reglas claras (pocas excepciones)
+- Dependencia de múltiples sistemas (ERP, CRM, legacy, bases de datos)
+- Impacto directo en el cliente (entregas, reclamos, autorizaciones)
 
-Repetición (mismo flujo, muchas veces)
+**Ejemplos típicos:**
 
-Reglas claras (pocas excepciones)
+- Producción y control de calidad  
+- Logística y distribución  
+- Gestión de turnos  
+- Autorizaciones (salud, seguros, banca)  
+- Reclamos y seguimiento de casos  
 
-Dependencia de múltiples sistemas (ERP, CRM, legacy, bases de datos)
+---
 
-Impacto directo en el cliente (entregas, reclamos, autorizaciones)
+# 🤖 Transformación recomendada (explicada en profundidad)
 
-Ejemplos típicos:
+## **1) RPA para tareas repetitivas**
 
-Producción y control de calidad
+La RPA es ideal cuando el proceso tiene reglas fijas, datos estructurados y pasos manuales que consumen tiempo.  
+Permite automatizar tareas repetitivas y liberar recursos humanos para actividades estratégicas.
 
-Logística y distribución
+**Ejemplos reales:**
 
-Gestión de turnos
+- Cargar órdenes en un ERP  
+- Actualizar estados de reclamos  
+- Generar reportes operativos  
+- Validar datos entre sistemas  
 
-Autorizaciones (salud, seguros, banca)
+**Beneficios:**
 
-Reclamos y seguimiento de casos
+- Reducción de errores  
+- Aumento de velocidad  
+- Eliminación de tareas manuales  
 
-🤖 Transformación recomendada (explicada en profundidad)
-1) RPA para tareas repetitivas
-La RPA es ideal cuando el proceso tiene reglas fijas, datos estructurados y pasos manuales que consumen tiempo.
-Según fuentes especializadas, la RPA permite automatizar tareas repetitivas y manuales, liberando recursos humanos para actividades estratégicas. 
+---
 
-Ejemplos reales:
+## **2) Integración con sistemas vía APIs**
 
-Cargar órdenes en un ERP
-
-Actualizar estados de reclamos
-
-Generar reportes operativos
-
-Validar datos entre sistemas
-
-Beneficios:
-
-Reducción de errores
-
-Aumento de velocidad
-
-Eliminación de tareas manuales
-
-2) Integración con sistemas vía APIs
 Cuando el proceso involucra muchos sistemas, la integración vía API permite que la información fluya sin intervención humana.
 
-Cuándo usar APIs en vez de RPA:
+**Cuándo usar APIs en vez de RPA:**
 
-Cuando los sistemas tienen endpoints disponibles
+- Cuando los sistemas tienen endpoints disponibles  
+- Cuando se necesita velocidad y escalabilidad  
+- Cuando se busca reducir dependencia de interfaces gráficas  
 
-Cuando se necesita velocidad y escalabilidad
+**Ejemplos:**
 
-Cuando se busca reducir dependencia de interfaces gráficas
+- Enviar órdenes desde un CRM a un ERP  
+- Consultar stock en tiempo real  
+- Validar datos de clientes o proveedores  
 
-Ejemplos:
+---
 
-Enviar órdenes desde un CRM a un ERP
+## **3) IA para clasificación y lectura de documentos (IDP)**
 
-Consultar stock en tiempo real
+La IA permite procesar documentos no estructurados: PDFs, imágenes, formularios, mails.  
+Es parte de la capa de inteligencia dentro de la hiperautomatización.
 
-Validar datos de clientes o proveedores
+**Ejemplos:**
 
-3) IA para clasificación y lectura de documentos (IDP)
-La IA permite procesar documentos no estructurados: PDFs, imágenes, formularios, mails.
-Esto forma parte de la capa de inteligencia dentro de la hiperautomatización. 
+- Leer órdenes de compra  
+- Clasificar reclamos por tipo  
+- Extraer datos de remitos o facturas  
+- Interpretar formularios médicos o legales  
 
-Ejemplos:
+**Beneficios:**
 
-Leer órdenes de compra
+- Reduce tiempos de procesamiento  
+- Aumenta precisión  
+- Permite automatizar procesos antes imposibles  
 
-Clasificar reclamos por tipo
+---
 
-Extraer datos de remitos o facturas
+## **4) BPM para rediseño end‑to‑end**
 
-Interpretar formularios médicos o legales
-
-Beneficios:
-
-Reduce tiempos de procesamiento
-
-Aumenta precisión
-
-Permite automatizar procesos antes imposibles
-
-4) BPM para rediseño end‑to‑end
 El BPM permite repensar el proceso completo, no solo automatizar tareas aisladas.
-Es parte de la capa de orquestación en la hiperautomatización. 
 
-Cuándo aplicar BPM:
+**Cuándo aplicar BPM:**
 
-Cuando el proceso tiene muchos actores
+- Cuando el proceso tiene muchos actores  
+- Cuando hay pasos redundantes  
+- Cuando se necesita trazabilidad  
+- Cuando se quiere mejorar la experiencia del cliente  
 
-Cuando hay pasos redundantes
+**Ejemplos:**
 
-Cuando se necesita trazabilidad
+- Rediseñar el flujo de autorizaciones  
+- Orquestar todo el ciclo de reclamos  
+- Gestionar turnos y derivaciones  
 
-Cuando se quiere mejorar la experiencia del cliente
+---
 
-Ejemplos:
+# 🔁 Repetición → RPA y APIs son ideales (con ejemplos)
 
-Rediseñar el flujo de autorizaciones
+## 🧩 **1) ¿Qué es “repetición” en un proceso?**
 
-Orquestar todo el ciclo de reclamos
+Cuando una tarea se ejecuta muchas veces al día, siempre igual, con reglas claras y poca variación.  
+La repetición es el indicador Nº1 para automatizar.
 
-Gestionar turnos y derivaciones
+---
 
-🎯 ¿Cuándo aplicar esta transformación?
+## 🤖 **2) Repetición + tareas manuales → RPA**
+
+Ideal cuando el sistema no tiene API o es legado.
+
+**Ejemplos:**
+
+- Cargar 300 órdenes por día en un sistema viejo  
+- Descargar reportes, limpiarlos y subirlos a SharePoint  
+- Actualizar estados de reclamos uno por uno  
+- Copiar datos entre CRM y ERP manualmente  
+
+**Por qué funciona:**  
+RPA imita al usuario, ejecuta pasos repetitivos sin errores y sin cansancio.
+
+---
+
+## 🔗 **3) Repetición + sistemas con API → APIs**
+
+Ideal cuando los sistemas ya exponen endpoints.
+
+**Ejemplos:**
+
+- Crear tickets automáticamente cuando entra un caso en Salesforce  
+- Consultar stock en tiempo real desde un ERP  
+- Actualizar miles de registros sin abrir pantallas  
+- Sincronizar datos entre CRM y base de datos  
+
+**Por qué funciona:**  
+Las APIs permiten que los sistemas se comuniquen directamente sin intervención humana.
+
+---
+
+## 🧠 **4) Repetición + documentos → IA + RPA**
+
+Ideal cuando la repetición incluye lectura de documentos.
+
+**Ejemplos:**
+
+- Leer facturas y extraer importes  
+- Clasificar reclamos por tipo  
+- Extraer datos de remitos o formularios médicos  
+
+---
+
+## 🎯 **Regla rápida para decidir**
+
+| Situación | Solución ideal |
+|----------|----------------|
+| Repetitivo + manual + sin API | **RPA** |
+| Repetitivo + con API | **API** |
+| Repetitivo + documentos | **IA + RPA** |
+| Repetitivo + varios sistemas | **API + BPM** |
+
+---
+
+## 🎯 ¿Cuándo aplicar esta transformación?
+
 Aplicalo cuando el proceso tenga:
 
-Volumen alto → automatización escala muy bien
+- Volumen alto → automatización escala muy bien  
+- Repetición → RPA y APIs son ideales  
+- Reglas claras → menos excepciones, más automatizable  
+- Impacto directo en el negocio → ROI inmediato  
+- Dependencia de múltiples sistemas → APIs + BPM  
 
-Repetición → RPA y APIs son ideales
+---
 
-Reglas claras → menos excepciones, más automatizable
+[⬅️ Volver al índice de Conceptos](../README.md)
 
-Impacto directo en el negocio → ROI inmediato
-
-Dependencia de múltiples sistemas → APIs + BPM
