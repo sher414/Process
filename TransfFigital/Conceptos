@@ -1,1 +1,84 @@
+Tipos de procesos y qué transformación digital corresponde
+(Guía práctica para identificar qué automatizar y cómo)
 
+La Transformación Digital no es igual para todos los procesos. Cada tipo requiere tecnologías distintas, niveles de intervención diferentes y un enfoque específico.
+Acá te dejo una síntesis clara para entender qué aplicar en cada caso.
+
+🔵 1) Procesos Operativos (core del negocio)
+📌 Ejemplos: producción, logística, turnos, autorizaciones, reclamos.
+
+Transformación recomendada:
+
+RPA para tareas repetitivas
+
+Integración con sistemas (APIs)
+
+IA para clasificación de documentos
+
+BPM para rediseño de punta a punta
+
+Cuándo aplicarlo:  
+Cuando hay volumen, repetición y reglas claras.
+
+🟢 2) Procesos Administrativos
+📌 Ejemplos: carga de datos, reportes, conciliaciones, altas/bajas, validaciones.
+
+Transformación recomendada:
+
+RPA
+
+Automatización no‑code (Power Automate, Zapier)
+
+Formularios digitales
+
+Eliminación de papel
+
+Cuándo aplicarlo:  
+Cuando predominan tareas manuales, repetitivas y con errores humanos.
+
+🟣 3) Procesos de Atención al Cliente
+📌 Ejemplos: consultas, reclamos, seguimiento, onboarding.
+
+Transformación recomendada:
+
+Chatbots
+
+Agentes de IA
+
+Automatización omnicanal
+
+Integración con CRM
+
+Cuándo aplicarlo:  
+Cuando hay alto volumen y necesidad de respuesta inmediata.
+
+🟠 4) Procesos de Soporte Interno
+📌 Ejemplos: IT, RRHH, compras, mantenimiento.
+
+Transformación recomendada:
+
+Portales de autoservicio
+
+Workflows automatizados
+
+IA para clasificación de tickets
+
+RPA para tareas repetitivas
+
+Cuándo aplicarlo:  
+Cuando existen cuellos de botella o dependencias entre áreas.
+
+🎓 ¿Querés aprender esto con contenido gratuito?
+Puedo armarte una playlist de videos (YouTube) que cubra:
+
+Qué es Transformación Digital
+
+Tipos de procesos
+
+Qué automatización corresponde a cada uno
+
+Bots vs RPA vs Agentes de IA
+
+Cómo priorizar procesos
+
+Cómo diseñar un roadmap de automatización
