@@ -1,0 +1,120 @@
+📘 PDD – Ejemplo Real (Automatización de Validación de Facturas de Proveedores)
+Caso típico en empresas de servicios, salud, retail y banca.
+
+1. 🎯 Objetivo del Proceso
+Automatizar la validación de facturas de proveedores para reducir tiempos operativos, minimizar errores manuales y asegurar que solo se procesen facturas correctas antes de su ingreso al ERP.
+
+2. 📌 Alcance
+Incluye:
+
+Lectura automática de facturas recibidas por correo.
+
+Extracción de datos (N° factura, CUIT, monto, fecha, ítems).
+
+Validación contra reglas de negocio y datos del ERP.
+
+Generación de reporte de inconsistencias.
+
+No incluye:
+
+Alta de proveedores.
+
+Gestión de reclamos con proveedores.
+
+Carga manual de facturas excepcionales.
+
+3. 👥 Roles y Responsables
+Rol	Responsabilidad	Área
+Analista de Cuentas a Pagar	Revisión de excepciones	Finanzas
+Robot RPA	Validación automática	Automatización
+Supervisor	Aprobación final	Finanzas
+
+
+4. 🔄 Descripción General del Proceso (AS-IS)
+Actualmente, el analista descarga facturas del correo, abre cada PDF, revisa datos clave, los compara con el ERP y decide si aprobar o rechazar. El proceso es manual, repetitivo y propenso a errores.
+
+5. 🧩 Flujo Detallado Paso a Paso
+Paso	Descripción	Actor	Sistema	Entrada	Salida
+1	Descargar facturas del correo	Analista	Outlook	Emails	PDFs
+2	Abrir PDF y extraer datos	Analista	Adobe	PDF	Datos
+3	Validar CUIT y proveedor	Analista	ERP	Datos	Validación
+4	Validar montos y fechas	Analista	ERP	Datos	Validación
+5	Registrar resultado	Analista	Excel	Validación	Reporte
+
+
+6. 🖥️ Sistemas Involucrados
+Outlook
+
+ERP (SAP / Tango / Oracle)
+
+Excel
+
+OCR (si aplica)
+
+UiPath / Power Automate / Blue Prism
+
+7. 📐 Reglas de Negocio
+El CUIT debe existir en el maestro de proveedores.
+
+La fecha de factura no puede superar 30 días.
+
+El monto debe coincidir con la orden de compra.
+
+La factura no debe estar duplicada.
+
+8. ⚠️ Excepciones
+Factura ilegible.
+
+Proveedor no registrado.
+
+Diferencias de monto > 5%.
+
+Fecha fuera de rango.
+
+9. 📊 KPIs Actuales
+Tiempo promedio por factura: 4 minutos.
+
+Volumen diario: 350 facturas.
+
+Error humano estimado: 3–5%.
+
+Retrabajos: 20%.
+
+10. 🔍 Problemas y Dolencias
+Alto volumen manual.
+
+Errores por cansancio.
+
+Retrasos en cierres contables.
+
+Falta de trazabilidad.
+
+11. 🚀 Oportunidades de Mejora
+Automatizar lectura y validación.
+
+Integrar OCR para facturas escaneadas.
+
+Generar dashboard de excepciones.
+
+Reducir tiempos y errores.
+
+12. 🧭 Proceso TO-BE
+El robot descarga facturas, extrae datos, valida contra el ERP, genera un reporte y solo envía al analista las excepciones. El analista interviene solo en casos especiales.
+
+13. 🗺️ BPMN
+AS-IS: proceso manual con múltiples puntos de decisión.
+
+TO-BE: flujo automatizado con cola de excepciones.
+
+(Podés agregar tu BPMN en PNG o .bpmn)
+
+14. 📚 Documentos Relacionados
+Política de compras
+
+Manual de proveedores
+
+Especificación técnica del robot (SDD)
+
+15. ✔️ Aprobaciones
+Nombre	Rol	Fecha
+|     |    |     |
