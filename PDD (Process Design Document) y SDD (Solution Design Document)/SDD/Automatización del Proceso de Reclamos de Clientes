@@ -1,0 +1,177 @@
+# 🛠️ Solution Design Document (SDD)
+**Proceso:** Reclamos de Clientes  
+**Automatización:** Clasificación, Validación y Derivación Automática  
+**Versión:** 1.0  
+**Última actualización:**  
+**Responsable:** Equipo de Automatización  
+
+---
+
+## 📚 Índice
+1. [Objetivo de la Solución](#-objetivo-de-la-solución)  
+2. [Alcance](#-alcance)  
+3. [Arquitectura de la Solución](#-arquitectura-de-la-solución)  
+4. [Flujo Lógico (TO-BE)](#-flujo-lógico-to-be)  
+5. [Reglas de Negocio](#-reglas-de-negocio)  
+6. [Lógica de Clasificación](#-lógica-de-clasificación)  
+7. [Integraciones Técnicas](#-integraciones-técnicas)  
+8. [Manejo de Excepciones](#-manejo-de-excepciones)  
+9. [Logging y Auditoría](#-logging-y-auditoría)  
+10. [Seguridad](#-seguridad)  
+11. [Pruebas (UAT)](#-pruebas-uat)  
+12. [Beneficios Esperados](#-beneficios-esperados)  
+13. [Aprobaciones](#-aprobaciones)  
+
+---
+
+## 🎯 Objetivo de la Solución
+Diseñar la solución técnica que permitirá automatizar la lectura, clasificación, validación y derivación de reclamos provenientes de múltiples canales, reduciendo tiempos operativos y mejorando la trazabilidad.
+
+---
+
+## 🧭 Alcance
+**Incluye:**
+- Lectura automática de reclamos desde email, formulario web o app.
+- Extracción de datos del cliente y del reclamo.
+- Validación del cliente en CRM.
+- Clasificación automática según reglas.
+- Creación del ticket en el sistema correspondiente.
+- Derivación automática al área responsable.
+- Registro de excepciones.
+
+**No incluye:**
+- Resolución del reclamo.
+- Contacto con el cliente.
+- Gestión de casos legales o especiales.
+
+---
+
+## 🧩 Arquitectura de la Solución
+**Componentes:**
+- Robot RPA (UiPath / Power Automate / Blue Prism).
+- Conector de correo (Outlook / Gmail API).
+- Conector CRM (Salesforce / Dynamics / SAP).
+- API o interfaz del sistema de tickets (ServiceNow / Zendesk / Jira).
+- OCR para lectura de adjuntos.
+
+**Diagrama conceptual (texto):**
+
+
+---
+
+## 🔄 Flujo Lógico (TO-BE)
+1. Robot accede al buzón o API de reclamos.  
+2. Descarga reclamos nuevos.  
+3. Extrae datos clave (ID cliente, texto del reclamo, adjuntos).  
+4. Si hay adjuntos → aplica OCR.  
+5. Valida al cliente en CRM.  
+6. Clasifica el reclamo según reglas.  
+7. Crea ticket en el sistema correspondiente.  
+8. Deriva automáticamente al área.  
+9. Registra logs y excepciones.  
+10. Envía reporte diario.
+
+---
+
+## 📐 Reglas de Negocio
+- Si el cliente no existe → excepción.  
+- Si el reclamo menciona “factura”, “cobro”, “importe” → categoría: Facturación.  
+- Si menciona “no funciona”, “error”, “caído” → categoría: Técnico.  
+- Si menciona “alta”, “baja”, “cambio de datos” → categoría: Administrativo.  
+- Si no se identifica categoría → excepción.  
+- Si el sistema de tickets no responde → reintento x3.
+
+---
+
+## 🧠 Lógica de Clasificación
+**Métodos posibles:**
+- Reglas basadas en palabras clave.  
+- Clasificador ML entrenado con reclamos históricos.  
+- Modelo híbrido (reglas + ML).
+
+**Salida esperada:**
+- Categoría  
+- Subcategoría  
+- Prioridad  
+
+---
+
+## 🖥️ Integraciones Técnicas
+
+### CRM
+- Consulta por ID cliente.  
+- Validación de estado.  
+- Obtención de datos adicionales.
+
+### Sistema de Tickets
+- Creación de ticket vía API o UI automation.  
+- Asignación automática.  
+- Actualización de estado.
+
+### OCR
+**OCR (Optical Character Recognition)** convierte imágenes o PDFs en texto digital.  
+Se usa para leer:  
+- Capturas de pantalla  
+- Fotos de facturas  
+- Comprobantes  
+- DNI o documentación enviada por el cliente
+
+---
+
+## ⚠️ Manejo de Excepciones
+| Tipo | Descripción | Acción del Robot |
+|------|-------------|------------------|
+| Cliente no encontrado | No existe en CRM | Enviar a cola de excepciones |
+| Reclamo incompleto | Falta ID o texto | Enviar a cola |
+| Categoría no identificada | No coincide con reglas | Enviar a revisión |
+| Error de sistema | CRM o Tickets caído | Reintento x3 y log |
+
+---
+
+## 📝 Logging y Auditoría
+El robot registra:
+- Fecha y hora  
+- ID del reclamo  
+- Resultado de validación  
+- Categoría asignada  
+- Ticket generado  
+- Excepciones  
+- Tiempos de ejecución  
+
+Formato: JSON + Excel diario.
+
+---
+
+## 🔐 Seguridad
+- Acceso a CRM y Tickets mediante credenciales robotizadas.  
+- Buzón exclusivo para el robot.  
+- Logs sin datos sensibles.  
+- Cumplimiento de políticas de privacidad.
+
+---
+
+## 🧪 Pruebas (UAT)
+**Casos incluidos:**
+- Reclamo válido con cliente activo.  
+- Reclamo con adjunto legible.  
+- Reclamo con adjunto ilegible (OCR falla).  
+- Cliente inexistente.  
+- Categoría ambigua.  
+- Sistema de tickets caído.
+
+---
+
+## 🚀 Beneficios Esperados
+- Reducción del 70% del tiempo de clasificación.  
+- Eliminación de errores humanos.  
+- SLA de primera respuesta más rápido.  
+- Trazabilidad completa.  
+- Equipo liberado para tareas de valor.
+
+---
+
+## ✔️ Aprobaciones
+| Nombre | Rol | Fecha |
+|--------|------|--------|
+|        |      |        |
+
