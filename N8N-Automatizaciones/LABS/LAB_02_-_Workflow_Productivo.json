@@ -1,0 +1,640 @@
+{
+  "updatedAt": "2026-05-18T14:05:19.985Z",
+  "createdAt": "2026-05-14T17:39:18.395Z",
+  "id": "EduUXz7aJmmuhD8F",
+  "name": "LAB_02 - Workflow Productivo",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 8 * * 1-5"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        -128
+      ],
+      "id": "832fc4d7-0fea-45c5-836f-ed772f9a95c5",
+      "name": "Trigger Diario 8am"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "16RGFjRK9fg5uyY9vgow5Jk43ZQHJu9CE-W2zYkG91sE",
+          "mode": "list",
+          "cachedResultName": "Tareas",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16RGFjRK9fg5uyY9vgow5Jk43ZQHJu9CE-W2zYkG91sE/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16RGFjRK9fg5uyY9vgow5Jk43ZQHJu9CE-W2zYkG91sE/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "estado",
+              "lookupValue": "pendiente"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        224,
+        -128
+      ],
+      "id": "238e602c-1549-41bb-ad2e-350a626554ac",
+      "name": "Leer.Tareas",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst timestamp = new Date().toISOString();\n\nconst validas = [];\nconst invalidas = [];\n\nfor (const item of items) {\n  const t = item.json;\n  const errores = [];\n\n  // Validaciones\n  if (!t.id)                    errores.push('Falta id');\n  if (!t.titulo)                errores.push('Falta titulo');\n  if (!t.responsable)           errores.push('Falta responsable');\n  if (!t.fecha_vencimiento)     errores.push('Falta fecha_vencimiento');\n  if (!t.prioridad)             errores.push('Falta prioridad');\n\n  // Validar email\n  if (t.email_responsable) {\n    const emailOk = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(t.email_responsable);\n    if (!emailOk) errores.push('Email inválido');\n  }\n\n  // Detectar vencimiento\n  let vencida = false;\n  let venceHoy = false;\n  if (t.fecha_vencimiento) {\n    const hoy = new Date();\n    hoy.setHours(0,0,0,0);\n    const fecha = new Date(t.fecha_vencimiento);\n    vencida   = fecha < hoy;\n    venceHoy  = fecha.toDateString() === hoy.toDateString();\n  }\n\n  const enriquecida = {\n    ...t,\n    _meta: {\n      processedAt: timestamp,\n      vencida,\n      venceHoy,\n      errores\n    }\n  };\n\n  if (errores.length > 0) {\n    invalidas.push({ json: enriquecida });\n  } else {\n    validas.push({ json: enriquecida });\n  }\n}\n\nconsole.log(`Válidas: ${validas.length} | Inválidas: ${invalidas.length}`);\n\nreturn validas;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -224
+      ],
+      "id": "3563f61c-f538-4246-a090-ae08ab619cc6",
+      "name": "Validar.Tareas"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "857fb6bf-64f9-4e0b-80b4-9128badfaebc",
+              "leftValue": "={{ $json._meta.venceHoy }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "6a0abf14-cc3d-4506-b159-6641dac35ad4",
+              "leftValue": "={{ $json._meta.vencida }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "or"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        672,
+        -224
+      ],
+      "id": "5eedddb6-ab5b-428d-a4a0-b6d4b570da91",
+      "name": "Filtrar.Urgentes"
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst hoy = new Date().toLocaleDateString('es-AR');\n\nlet filas = '';\n\nfor (const item of items) {\n  const t = item.json;\n  const estado = t._meta.vencida ? '🔴 VENCIDA' : '🟡 VENCE HOY';\n  const prioridad = t.prioridad === 'alta' ? '⚠️ Alta' \n                  : t.prioridad === 'media' ? '🔵 Media' \n                  : '⬇️ Baja';\n\n  filas += `\n    <tr>\n      <td style=\"padding:8px;border:1px solid #ddd\">${t.id}</td>\n      <td style=\"padding:8px;border:1px solid #ddd\">${t.titulo}</td>\n      <td style=\"padding:8px;border:1px solid #ddd\">${t.responsable}</td>\n      <td style=\"padding:8px;border:1px solid #ddd\">${prioridad}</td>\n      <td style=\"padding:8px;border:1px solid #ddd\">${t.fecha_vencimiento}</td>\n      <td style=\"padding:8px;border:1px solid #ddd\">${estado}</td>\n    </tr>`;\n}\n\nconst html = `\n<h2>📋 Resumen Diario de Tareas — ${hoy}</h2>\n<p>Se encontraron <strong>${items.length} tarea(s)</strong> que requieren atención:</p>\n<table style=\"border-collapse:collapse;width:100%\">\n  <thead style=\"background:#2c3e50;color:white\">\n    <tr>\n      <th style=\"padding:8px\">ID</th>\n      <th style=\"padding:8px\">Título</th>\n      <th style=\"padding:8px\">Responsable</th>\n      <th style=\"padding:8px\">Prioridad</th>\n      <th style=\"padding:8px\">Vencimiento</th>\n      <th style=\"padding:8px\">Estado</th>\n    </tr>\n  </thead>\n  <tbody>${filas}</tbody>\n</table>\n<p style=\"color:#888;font-size:12px\">Generado automáticamente por n8n — ${new Date().toISOString()}</p>\n`;\n\nreturn [{ json: { html, totalTareas: items.length, fecha: hoy } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        896,
+        -224
+      ],
+      "id": "671f6d72-0b3b-41e2-bd4f-ea2f32db154e",
+      "name": "Formatear.Email"
+    },
+    {
+      "parameters": {
+        "sendTo": " gerpruebas72@gmail.com",
+        "subject": "==📋 Resumen Diario de Tareas — {{ $json.fecha }}",
+        "message": "= ={{ $json.html }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1120,
+        -224
+      ],
+      "id": "23e01b75-2f83-4a18-8d90-52e6e6673cce",
+      "name": "Enviar.Resumen",
+      "webhookId": "55ac438b-2eab-4132-8f42-9ad9f38aedc7",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DgHmm1yzTbMOxlxt",
+          "name": "Gmail account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "gerpruebas72@gmail.com",
+        "subject": "🚨 Error en workflow — Falló lectura de Sheets",
+        "message": "={{ \"Error: \" + $json.error.message + \"\\n\\nFecha: \" + new Date().toISOString() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        448,
+        -32
+      ],
+      "id": "3f71dd62-7f45-4a88-b4b6-a5d8ce2002e8",
+      "name": "🚨 Error Sheets",
+      "webhookId": "f9b53db1-cc77-4f00-b8b7-003512f76ec1",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DgHmm1yzTbMOxlxt",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "gerpruebas72@gmail.com",
+        "subject": "🚨 Error en workflow — Falló envío de email",
+        "message": "=={{ \"Error: \" + $json.error.message + \"\\n\\nFecha: \" + new Date().toISOString() }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1328,
+        -128
+      ],
+      "id": "eccd9eac-09a1-4443-b7cf-5fe9c8d68de3",
+      "name": "🚨 Error Gmail",
+      "webhookId": "bc023928-0940-49cc-ada3-fc495e3a7eaf",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DgHmm1yzTbMOxlxt",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        912,
+        -32
+      ],
+      "id": "b0ee49df-1d8e-46de-9dab-9ac3fe5f976a",
+      "name": "✋ Sin Tareas Urgentes"
+    }
+  ],
+  "connections": {
+    "Trigger Diario 8am": {
+      "main": [
+        [
+          {
+            "node": "Leer.Tareas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Leer.Tareas": {
+      "main": [
+        [
+          {
+            "node": "Validar.Tareas",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "🚨 Error Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validar.Tareas": {
+      "main": [
+        [
+          {
+            "node": "Filtrar.Urgentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar.Urgentes": {
+      "main": [
+        [
+          {
+            "node": "Formatear.Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "✋ Sin Tareas Urgentes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formatear.Email": {
+      "main": [
+        [
+          {
+            "node": "Enviar.Resumen",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enviar.Resumen": {
+      "main": [
+        [],
+        [
+          {
+            "node": "🚨 Error Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": {
+    "node:Trigger Diario 8am": {
+      "recurrenceRules": []
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "e646c7a3-5661-4f96-aa14-c317c97cb208",
+  "activeVersionId": "e646c7a3-5661-4f96-aa14-c317c97cb208",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-05-14T17:39:18.409Z",
+      "createdAt": "2026-05-14T17:39:18.409Z",
+      "role": "workflow:owner",
+      "workflowId": "EduUXz7aJmmuhD8F",
+      "projectId": "AHRwMnLWy34FtBb9"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-05-18T14:01:02.000Z",
+    "createdAt": "2026-05-14T18:08:33.470Z",
+    "versionId": "e646c7a3-5661-4f96-aa14-c317c97cb208",
+    "workflowId": "EduUXz7aJmmuhD8F",
+    "nodes": [
+      {
+        "parameters": {
+          "rule": {
+            "interval": [
+              {
+                "field": "cronExpression",
+                "expression": "0 0 8 * * 1-5"
+              }
+            ]
+          }
+        },
+        "type": "n8n-nodes-base.scheduleTrigger",
+        "typeVersion": 1.3,
+        "position": [
+          0,
+          -128
+        ],
+        "id": "832fc4d7-0fea-45c5-836f-ed772f9a95c5",
+        "name": "Trigger Diario 8am"
+      },
+      {
+        "parameters": {
+          "documentId": {
+            "__rl": true,
+            "value": "16RGFjRK9fg5uyY9vgow5Jk43ZQHJu9CE-W2zYkG91sE",
+            "mode": "list",
+            "cachedResultName": "Tareas",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16RGFjRK9fg5uyY9vgow5Jk43ZQHJu9CE-W2zYkG91sE/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Hoja 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16RGFjRK9fg5uyY9vgow5Jk43ZQHJu9CE-W2zYkG91sE/edit#gid=0"
+          },
+          "filtersUI": {
+            "values": [
+              {
+                "lookupColumn": "estado",
+                "lookupValue": "pendiente"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          224,
+          -128
+        ],
+        "id": "238e602c-1549-41bb-ad2e-350a626554ac",
+        "name": "Leer.Tareas",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "WMux4BMLhFV7qENL",
+            "name": "Google Sheets account"
+          }
+        },
+        "onError": "continueErrorOutput"
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst timestamp = new Date().toISOString();\n\nconst validas = [];\nconst invalidas = [];\n\nfor (const item of items) {\n  const t = item.json;\n  const errores = [];\n\n  // Validaciones\n  if (!t.id)                    errores.push('Falta id');\n  if (!t.titulo)                errores.push('Falta titulo');\n  if (!t.responsable)           errores.push('Falta responsable');\n  if (!t.fecha_vencimiento)     errores.push('Falta fecha_vencimiento');\n  if (!t.prioridad)             errores.push('Falta prioridad');\n\n  // Validar email\n  if (t.email_responsable) {\n    const emailOk = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(t.email_responsable);\n    if (!emailOk) errores.push('Email inválido');\n  }\n\n  // Detectar vencimiento\n  let vencida = false;\n  let venceHoy = false;\n  if (t.fecha_vencimiento) {\n    const hoy = new Date();\n    hoy.setHours(0,0,0,0);\n    const fecha = new Date(t.fecha_vencimiento);\n    vencida   = fecha < hoy;\n    venceHoy  = fecha.toDateString() === hoy.toDateString();\n  }\n\n  const enriquecida = {\n    ...t,\n    _meta: {\n      processedAt: timestamp,\n      vencida,\n      venceHoy,\n      errores\n    }\n  };\n\n  if (errores.length > 0) {\n    invalidas.push({ json: enriquecida });\n  } else {\n    validas.push({ json: enriquecida });\n  }\n}\n\nconsole.log(`Válidas: ${validas.length} | Inválidas: ${invalidas.length}`);\n\nreturn validas;"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          448,
+          -224
+        ],
+        "id": "3563f61c-f538-4246-a090-ae08ab619cc6",
+        "name": "Validar.Tareas"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "857fb6bf-64f9-4e0b-80b4-9128badfaebc",
+                "leftValue": "={{ $json._meta.venceHoy }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              },
+              {
+                "id": "6a0abf14-cc3d-4506-b159-6641dac35ad4",
+                "leftValue": "={{ $json._meta.vencida }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "or"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          672,
+          -224
+        ],
+        "id": "5eedddb6-ab5b-428d-a4a0-b6d4b570da91",
+        "name": "Filtrar.Urgentes"
+      },
+      {
+        "parameters": {
+          "jsCode": "const items = $input.all();\nconst hoy = new Date().toLocaleDateString('es-AR');\n\nlet filas = '';\n\nfor (const item of items) {\n  const t = item.json;\n  const estado = t._meta.vencida ? '🔴 VENCIDA' : '🟡 VENCE HOY';\n  const prioridad = t.prioridad === 'alta' ? '⚠️ Alta' \n                  : t.prioridad === 'media' ? '🔵 Media' \n                  : '⬇️ Baja';\n\n  filas += `\n    <tr>\n      <td style=\"padding:8px;border:1px solid #ddd\">${t.id}</td>\n      <td style=\"padding:8px;border:1px solid #ddd\">${t.titulo}</td>\n      <td style=\"padding:8px;border:1px solid #ddd\">${t.responsable}</td>\n      <td style=\"padding:8px;border:1px solid #ddd\">${prioridad}</td>\n      <td style=\"padding:8px;border:1px solid #ddd\">${t.fecha_vencimiento}</td>\n      <td style=\"padding:8px;border:1px solid #ddd\">${estado}</td>\n    </tr>`;\n}\n\nconst html = `\n<h2>📋 Resumen Diario de Tareas — ${hoy}</h2>\n<p>Se encontraron <strong>${items.length} tarea(s)</strong> que requieren atención:</p>\n<table style=\"border-collapse:collapse;width:100%\">\n  <thead style=\"background:#2c3e50;color:white\">\n    <tr>\n      <th style=\"padding:8px\">ID</th>\n      <th style=\"padding:8px\">Título</th>\n      <th style=\"padding:8px\">Responsable</th>\n      <th style=\"padding:8px\">Prioridad</th>\n      <th style=\"padding:8px\">Vencimiento</th>\n      <th style=\"padding:8px\">Estado</th>\n    </tr>\n  </thead>\n  <tbody>${filas}</tbody>\n</table>\n<p style=\"color:#888;font-size:12px\">Generado automáticamente por n8n — ${new Date().toISOString()}</p>\n`;\n\nreturn [{ json: { html, totalTareas: items.length, fecha: hoy } }];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          896,
+          -224
+        ],
+        "id": "671f6d72-0b3b-41e2-bd4f-ea2f32db154e",
+        "name": "Formatear.Email"
+      },
+      {
+        "parameters": {
+          "sendTo": " gerpruebas72@gmail.com",
+          "subject": "==📋 Resumen Diario de Tareas — {{ $json.fecha }}",
+          "message": "= ={{ $json.html }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          1120,
+          -224
+        ],
+        "id": "23e01b75-2f83-4a18-8d90-52e6e6673cce",
+        "name": "Enviar.Resumen",
+        "webhookId": "55ac438b-2eab-4132-8f42-9ad9f38aedc7",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "DgHmm1yzTbMOxlxt",
+            "name": "Gmail account"
+          }
+        },
+        "onError": "continueErrorOutput"
+      },
+      {
+        "parameters": {
+          "sendTo": "gerpruebas72@gmail.com",
+          "subject": "🚨 Error en workflow — Falló lectura de Sheets",
+          "message": "={{ \"Error: \" + $json.error.message + \"\\n\\nFecha: \" + new Date().toISOString() }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          448,
+          -32
+        ],
+        "id": "3f71dd62-7f45-4a88-b4b6-a5d8ce2002e8",
+        "name": "🚨 Error Sheets",
+        "webhookId": "f9b53db1-cc77-4f00-b8b7-003512f76ec1",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "DgHmm1yzTbMOxlxt",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "gerpruebas72@gmail.com",
+          "subject": "🚨 Error en workflow — Falló envío de email",
+          "message": "=={{ \"Error: \" + $json.error.message + \"\\n\\nFecha: \" + new Date().toISOString() }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          1328,
+          -128
+        ],
+        "id": "eccd9eac-09a1-4443-b7cf-5fe9c8d68de3",
+        "name": "🚨 Error Gmail",
+        "webhookId": "bc023928-0940-49cc-ada3-fc495e3a7eaf",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "DgHmm1yzTbMOxlxt",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {},
+        "type": "n8n-nodes-base.noOp",
+        "typeVersion": 1,
+        "position": [
+          912,
+          -32
+        ],
+        "id": "b0ee49df-1d8e-46de-9dab-9ac3fe5f976a",
+        "name": "✋ Sin Tareas Urgentes"
+      }
+    ],
+    "connections": {
+      "Trigger Diario 8am": {
+        "main": [
+          [
+            {
+              "node": "Leer.Tareas",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Leer.Tareas": {
+        "main": [
+          [
+            {
+              "node": "Validar.Tareas",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "🚨 Error Sheets",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Validar.Tareas": {
+        "main": [
+          [
+            {
+              "node": "Filtrar.Urgentes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Filtrar.Urgentes": {
+        "main": [
+          [
+            {
+              "node": "Formatear.Email",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "✋ Sin Tareas Urgentes",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Formatear.Email": {
+        "main": [
+          [
+            {
+              "node": "Enviar.Resumen",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Enviar.Resumen": {
+        "main": [
+          [],
+          [
+            {
+              "node": "🚨 Error Gmail",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "German Morvillo",
+    "name": "Version e646c7a3",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}

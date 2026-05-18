@@ -1,0 +1,930 @@
+{
+  "updatedAt": "2026-05-18T14:05:05.918Z",
+  "createdAt": "2026-05-15T13:37:31.014Z",
+  "id": "gGoggH5U7L1aazgX",
+  "name": "Saldo_Bancario_Bajo",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 💰 Flujo de datos: Alerta de Saldo\n\n> **Caso real:** Un sistema interno avisa automáticamente\n> cuando el saldo de una cuenta operativa cae por debajo del mínimo requerido.\n\n### ¿Qué hace este workflow?\n\n| Paso | Nodo | Acción |\n|---|---|---|\n| 1 | `Webhook` | Recibe los datos del POST |\n| 2 | `Code JS` | Transforma y calcula los campos |\n| 3 | `IF` | Evalúa si el saldo está bajo el mínimo |\n| 4a | `Gmail` | Envía alerta si `bajo_de_limite = true` |\n| 4b | `Sheets` | Registra el resultado en ambas ramas |",
+        "height": 224,
+        "width": 1056,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "b2947694-6f37-44aa-824a-ca8896120986",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": " **Postman/Hoppscotch** envía:\n\n```json\n{\n  \"cuenta\": \"Operaciones\",\n  \"saldo\": 15000,\n  \"minimo\": 50000\n}\n",
+        "height": 192,
+        "width": 272,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -336,
+        144
+      ],
+      "typeVersion": 1,
+      "id": "f267cf00-88df-46fe-851f-819745fbce2d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cdd87881-7cd7-4693-9814-5342af6c0910",
+              "leftValue": "={{ $json.bajo_de_limite }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "20f8eae1-4ceb-4512-ac8f-d4699743240c",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "content": "**Nodo IF** lee `bajo_de_limite`:\n\n- `true` → rama **ALERTA**\n- `false` → rama **OK**",
+        "height": 128,
+        "width": 224,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        416,
+        144
+      ],
+      "typeVersion": 1,
+      "id": "be701f0f-da99-49f2-ba9b-435022dd2e97",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "sendTo": "gerpruebas72@gmail.com",
+        "subject": "=⚠️ Alerta: Saldo bajo en cuenta {{ $json.cuenta }}",
+        "message": "=<h2>⚠️ Alerta de Saldo Bajo</h2>\n\n<p>La cuenta <strong>{{ $json.cuenta }}</strong>\nestá por debajo del mínimo requerido.</p>\n\n<table>\n  <tr>\n    <td><strong>Saldo actual:</strong></td>\n    <td>${{ $json.saldo }}</td> <!-- saldo actual -->\n  </tr>\n  <tr>\n    <td><strong>Mínimo requerido:</strong></td>\n    <td>${{ $json.minimo }}</td> <!-- mínimo requerido -->\n  </tr>\n  <tr>\n    <td><strong>Diferencia:</strong></td>\n    <td>${{ $json.diferencia }}</td> <!-- minimo - saldo -->\n  </tr>\n</table>\n\n<br>\n\n<p style=\"color:#888\">Procesado el: {{ $json.procesado_al }}</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        656,
+        -96
+      ],
+      "id": "308c838b-f902-4307-9fa8-9ad2970f8f5e",
+      "name": "Send a message",
+      "webhookId": "5dfebf82-b822-4a6d-ade5-c49aa00374d4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DgHmm1yzTbMOxlxt",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo",
+          "mode": "list",
+          "cachedResultName": "Alerta_Saldo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "cuenta": "={{ $('Transforma.Datos').item.json.cuenta }}",
+            "saldo": "={{ $('Transforma.Datos').item.json.saldo }}",
+            "minimo": "={{ $('Transforma.Datos').item.json.minimo }}",
+            "diferencia": "={{ $('Transforma.Datos').item.json.diferencia }}",
+            "estado": "=OK",
+            "procesado_al": "={{ $('Transforma.Datos').item.json.procesado_al }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "cuenta",
+              "displayName": "cuenta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "saldo",
+              "displayName": "saldo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "minimo",
+              "displayName": "minimo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "diferencia",
+              "displayName": "diferencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "procesado_al",
+              "displayName": "procesado_al",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        864,
+        112
+      ],
+      "id": "54a86485-002a-4f3a-8202-e8f1e45d9b27",
+      "name": "EstadoOK.Falso",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo",
+          "mode": "list",
+          "cachedResultName": "Alerta_Saldo",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "saldo": "={{ $('Transforma.Datos').item.json.saldo }}",
+            "estado": "ALERTA",
+            "cuenta": "={{ $('Transforma.Datos').item.json.cuenta }}",
+            "procesado_al": "={{ $('Transforma.Datos').item.json.procesado_al }}",
+            "diferencia": "={{ $('Transforma.Datos').item.json.diferencia }}",
+            "minimo": "={{ $('Transforma.Datos').item.json.minimo }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "cuenta",
+              "displayName": "cuenta",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "saldo",
+              "displayName": "saldo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "minimo",
+              "displayName": "minimo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "diferencia",
+              "displayName": "diferencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estado",
+              "displayName": "estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "procesado_al",
+              "displayName": "procesado_al",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        864,
+        -96
+      ],
+      "id": "548ef3c2-72ec-4542-a53a-be13d4149a03",
+      "name": "EstadoALERTA.Verdadero",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## ✅ Rama TRUE — ALERTA\n\nSe ejecuta cuando `bajo_de_limite = true`\n\n1. 📧 Gmail envía alerta al responsable\n2. 📊 Sheets registra la fila con estado **ALERTA**",
+        "height": 128,
+        "width": 352,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        656,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "64fc22f9-1cd3-47b1-b4b0-f3c7b38189e1",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "content": "✅ Rama FALSE — OK\n\nSe ejecuta cuando `bajo_de_limite = false`\n\n1. 📊 Sheets registra la fila con estado **OK**\n2. No se envía email (saldo dentro del límite)",
+        "height": 112,
+        "width": 352,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        656,
+        272
+      ],
+      "typeVersion": 1,
+      "id": "9598f155-39ac-43c2-b1d7-2c61776a0226",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "alerta-saldo",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -240,
+        0
+      ],
+      "id": "dbd5e7f9-2217-4197-bf88-a08a10f738a1",
+      "name": "Post.Hoppscoth.Pruebas",
+      "webhookId": "f018e4fc-2f73-432f-b57c-9f6f665ad063"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Tomamos el primer item que llega del webhook\n// $input es el dato que viene del nodo anterior\n// .first() agarra el primer registro (en este caso hay uno solo)\n// .json accede al contenido JSON de ese registro\nconst item = $input.first().json;\n// N8N a veces mete los datos del POST dentro de \"body\"\n// y a veces directamente en el raíz del json\n// Por eso usamos el operador ?. (optional chaining) para intentar\n// primero item.body.cuenta, y si no existe, item.cuenta\n// Si ninguno existe, devolvemos '' (string vacío como fallback)\nconst cuenta = item.body?.cuenta || item.cuenta || '';\n// Hacemos lo mismo para saldo y minimo, pero además usamos parseFloat()\n// porque lo que llega del POST es un STRING (\"15000\")\n// y necesitamos un NÚMERO para poder comparar con el operador \n// El operador ?? (nullish coalescing) devuelve el lado derecho\n// solo si el izquierdo es null o undefined (más preciso que ||)\nconst saldo  = parseFloat(item.body?.saldo  ?? item.saldo  ?? 0);\nconst minimo = parseFloat(item.body?.minimo ?? item.minimo ?? 0);\n// Acá está la lógica central del flujo\n// Comparamos saldo con minimo → devuelve true o false\n// Este valor es el que va a usar el nodo IF para decidir qué rama tomar\nconst bajoDeLimite = saldo < minimo;\n// Calculamos cuánto falta para llegar al mínimo\n// Solo tiene sentido calcularlo si está bajo el límite\n// Si está OK, guardamos 0 para no confundir\n// ✅ Calculamos la diferencia primero, luego la usamos\nconst diferencia = bajoDeLimite ? (minimo - saldo) : 0;\n\n// Guardamos la fecha y hora exacta en que se procesó el registro\n// toISOString() devuelve formato universal: \"2026-05-15T14:30:00.000Z\"\nconst procesado_al = new Date().toISOString();\n// Retornamos el item transformado para que el siguiente nodo lo use\n// N8N siempre espera un array de objetos con la forma { json: {...} }\nreturn [{\n  json: {\n    cuenta,           // nombre de la cuenta\n    saldo,            // saldo actual (número)\n    minimo,           // mínimo requerido (número)\n    diferencia,       // cuánto falta (0 si está OK)\n    bajo_de_limite: bajoDeLimite,   // true o false → lo usa el IF\n    procesado_al      // timestamp del momento de procesamiento\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        112,
+        0
+      ],
+      "id": "0e037e53-5154-44b9-9afd-134a77e7bebc",
+      "name": "Transforma.Datos"
+    },
+    {
+      "parameters": {
+        "content": "## `{ }` Nodo Code — Transformación de datos\n\nRecibe el POST del Webhook y prepara los datos para el IF.\nConvierte strings a números, calcula la diferencia entre\nsaldo y mínimo, y genera el campo `bajo_de_limite` (`true` / `false`)\nque decide qué rama tomar.\n\n| Campo | Descripción |\n|---|---|\n| `cuenta` | Nombre de la cuenta operativa |\n| `saldo` | Saldo actual convertido a número |\n| `minimo` | Mínimo requerido convertido a número |\n| `diferencia` | `minimo - saldo` (0 si está OK) |\n| `bajo_de_limite` | `true` si saldo < mínimo |\n| `procesado_al` | Timestamp de procesamiento |",
+        "height": 368,
+        "width": 432,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        144
+      ],
+      "typeVersion": 1,
+      "id": "ee91a700-b23c-4fd7-ba35-2628ec9d9591",
+      "name": "Sticky Note7"
+    }
+  ],
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "EstadoOK.Falso",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "EstadoALERTA.Verdadero",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post.Hoppscoth.Pruebas": {
+      "main": [
+        [
+          {
+            "node": "Transforma.Datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transforma.Datos": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": null,
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "df31367d-7c21-4a27-9926-2a18a565be3a",
+  "activeVersionId": "df31367d-7c21-4a27-9926-2a18a565be3a",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-05-15T13:37:31.014Z",
+      "createdAt": "2026-05-15T13:37:31.014Z",
+      "role": "workflow:owner",
+      "workflowId": "gGoggH5U7L1aazgX",
+      "projectId": "AHRwMnLWy34FtBb9"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-05-15T14:56:56.000Z",
+    "createdAt": "2026-05-15T14:56:48.994Z",
+    "versionId": "df31367d-7c21-4a27-9926-2a18a565be3a",
+    "workflowId": "gGoggH5U7L1aazgX",
+    "nodes": [
+      {
+        "parameters": {
+          "content": "## 💰 Flujo de datos: Alerta de Saldo\n\n> **Caso real:** Un sistema interno avisa automáticamente\n> cuando el saldo de una cuenta operativa cae por debajo del mínimo requerido.\n\n### ¿Qué hace este workflow?\n\n| Paso | Nodo | Acción |\n|---|---|---|\n| 1 | `Webhook` | Recibe los datos del POST |\n| 2 | `Code JS` | Transforma y calcula los campos |\n| 3 | `IF` | Evalúa si el saldo está bajo el mínimo |\n| 4a | `Gmail` | Envía alerta si `bajo_de_limite = true` |\n| 4b | `Sheets` | Registra el resultado en ambas ramas |",
+          "height": 224,
+          "width": 1056,
+          "color": 6
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -480,
+          -240
+        ],
+        "typeVersion": 1,
+        "id": "b2947694-6f37-44aa-824a-ca8896120986",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "content": " **Postman/Hoppscotch** envía:\n\n```json\n{\n  \"cuenta\": \"Operaciones\",\n  \"saldo\": 15000,\n  \"minimo\": 50000\n}\n",
+          "height": 192,
+          "width": 272,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -336,
+          144
+        ],
+        "typeVersion": 1,
+        "id": "f267cf00-88df-46fe-851f-819745fbce2d",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "cdd87881-7cd7-4693-9814-5342af6c0910",
+                "leftValue": "={{ $json.bajo_de_limite }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          448,
+          0
+        ],
+        "id": "20f8eae1-4ceb-4512-ac8f-d4699743240c",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "content": "**Nodo IF** lee `bajo_de_limite`:\n\n- `true` → rama **ALERTA**\n- `false` → rama **OK**",
+          "height": 128,
+          "width": 224,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          416,
+          144
+        ],
+        "typeVersion": 1,
+        "id": "be701f0f-da99-49f2-ba9b-435022dd2e97",
+        "name": "Sticky Note3"
+      },
+      {
+        "parameters": {
+          "sendTo": "gerpruebas72@gmail.com",
+          "subject": "=⚠️ Alerta: Saldo bajo en cuenta {{ $json.cuenta }}",
+          "message": "=<h2>⚠️ Alerta de Saldo Bajo</h2>\n\n<p>La cuenta <strong>{{ $json.cuenta }}</strong>\nestá por debajo del mínimo requerido.</p>\n\n<table>\n  <tr>\n    <td><strong>Saldo actual:</strong></td>\n    <td>${{ $json.saldo }}</td> <!-- saldo actual -->\n  </tr>\n  <tr>\n    <td><strong>Mínimo requerido:</strong></td>\n    <td>${{ $json.minimo }}</td> <!-- mínimo requerido -->\n  </tr>\n  <tr>\n    <td><strong>Diferencia:</strong></td>\n    <td>${{ $json.diferencia }}</td> <!-- minimo - saldo -->\n  </tr>\n</table>\n\n<br>\n\n<p style=\"color:#888\">Procesado el: {{ $json.procesado_al }}</p>",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          656,
+          -96
+        ],
+        "id": "308c838b-f902-4307-9fa8-9ad2970f8f5e",
+        "name": "Send a message",
+        "webhookId": "5dfebf82-b822-4a6d-ade5-c49aa00374d4",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "DgHmm1yzTbMOxlxt",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo",
+            "mode": "list",
+            "cachedResultName": "Alerta_Saldo",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Hoja 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "cuenta": "={{ $('Transforma.Datos').item.json.cuenta }}",
+              "saldo": "={{ $('Transforma.Datos').item.json.saldo }}",
+              "minimo": "={{ $('Transforma.Datos').item.json.minimo }}",
+              "diferencia": "={{ $('Transforma.Datos').item.json.diferencia }}",
+              "estado": "=OK",
+              "procesado_al": "={{ $('Transforma.Datos').item.json.procesado_al }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "cuenta",
+                "displayName": "cuenta",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "saldo",
+                "displayName": "saldo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "minimo",
+                "displayName": "minimo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "diferencia",
+                "displayName": "diferencia",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "estado",
+                "displayName": "estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "procesado_al",
+                "displayName": "procesado_al",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          864,
+          112
+        ],
+        "id": "54a86485-002a-4f3a-8202-e8f1e45d9b27",
+        "name": "EstadoOK.Falso",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "WMux4BMLhFV7qENL",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo",
+            "mode": "list",
+            "cachedResultName": "Alerta_Saldo",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": "gid=0",
+            "mode": "list",
+            "cachedResultName": "Hoja 1",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1XDjhXuZZEgbDP51YkUQQx43V2NRBBFR4xkwE2A4rBeo/edit#gid=0"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "saldo": "={{ $('Transforma.Datos').item.json.saldo }}",
+              "estado": "ALERTA",
+              "cuenta": "={{ $('Transforma.Datos').item.json.cuenta }}",
+              "procesado_al": "={{ $('Transforma.Datos').item.json.procesado_al }}",
+              "diferencia": "={{ $('Transforma.Datos').item.json.diferencia }}",
+              "minimo": "={{ $('Transforma.Datos').item.json.minimo }}"
+            },
+            "matchingColumns": [],
+            "schema": [
+              {
+                "id": "cuenta",
+                "displayName": "cuenta",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "saldo",
+                "displayName": "saldo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "minimo",
+                "displayName": "minimo",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "diferencia",
+                "displayName": "diferencia",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "estado",
+                "displayName": "estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "procesado_al",
+                "displayName": "procesado_al",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          864,
+          -96
+        ],
+        "id": "548ef3c2-72ec-4542-a53a-be13d4149a03",
+        "name": "EstadoALERTA.Verdadero",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "WMux4BMLhFV7qENL",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "content": "## ✅ Rama TRUE — ALERTA\n\nSe ejecuta cuando `bajo_de_limite = true`\n\n1. 📧 Gmail envía alerta al responsable\n2. 📊 Sheets registra la fila con estado **ALERTA**",
+          "height": 128,
+          "width": 352,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          656,
+          -240
+        ],
+        "typeVersion": 1,
+        "id": "64fc22f9-1cd3-47b1-b4b0-f3c7b38189e1",
+        "name": "Sticky Note5"
+      },
+      {
+        "parameters": {
+          "content": "✅ Rama FALSE — OK\n\nSe ejecuta cuando `bajo_de_limite = false`\n\n1. 📊 Sheets registra la fila con estado **OK**\n2. No se envía email (saldo dentro del límite)",
+          "height": 112,
+          "width": 352,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          656,
+          272
+        ],
+        "typeVersion": 1,
+        "id": "9598f155-39ac-43c2-b1d7-2c61776a0226",
+        "name": "Sticky Note6"
+      },
+      {
+        "parameters": {
+          "httpMethod": "POST",
+          "path": "alerta-saldo",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.webhook",
+        "typeVersion": 2.1,
+        "position": [
+          -240,
+          0
+        ],
+        "id": "dbd5e7f9-2217-4197-bf88-a08a10f738a1",
+        "name": "Post.Hoppscoth.Pruebas",
+        "webhookId": "f018e4fc-2f73-432f-b57c-9f6f665ad063"
+      },
+      {
+        "parameters": {
+          "jsCode": "// Tomamos el primer item que llega del webhook\n// $input es el dato que viene del nodo anterior\n// .first() agarra el primer registro (en este caso hay uno solo)\n// .json accede al contenido JSON de ese registro\nconst item = $input.first().json;\n// N8N a veces mete los datos del POST dentro de \"body\"\n// y a veces directamente en el raíz del json\n// Por eso usamos el operador ?. (optional chaining) para intentar\n// primero item.body.cuenta, y si no existe, item.cuenta\n// Si ninguno existe, devolvemos '' (string vacío como fallback)\nconst cuenta = item.body?.cuenta || item.cuenta || '';\n// Hacemos lo mismo para saldo y minimo, pero además usamos parseFloat()\n// porque lo que llega del POST es un STRING (\"15000\")\n// y necesitamos un NÚMERO para poder comparar con el operador \n// El operador ?? (nullish coalescing) devuelve el lado derecho\n// solo si el izquierdo es null o undefined (más preciso que ||)\nconst saldo  = parseFloat(item.body?.saldo  ?? item.saldo  ?? 0);\nconst minimo = parseFloat(item.body?.minimo ?? item.minimo ?? 0);\n// Acá está la lógica central del flujo\n// Comparamos saldo con minimo → devuelve true o false\n// Este valor es el que va a usar el nodo IF para decidir qué rama tomar\nconst bajoDeLimite = saldo < minimo;\n// Calculamos cuánto falta para llegar al mínimo\n// Solo tiene sentido calcularlo si está bajo el límite\n// Si está OK, guardamos 0 para no confundir\n// ✅ Calculamos la diferencia primero, luego la usamos\nconst diferencia = bajoDeLimite ? (minimo - saldo) : 0;\n\n// Guardamos la fecha y hora exacta en que se procesó el registro\n// toISOString() devuelve formato universal: \"2026-05-15T14:30:00.000Z\"\nconst procesado_al = new Date().toISOString();\n// Retornamos el item transformado para que el siguiente nodo lo use\n// N8N siempre espera un array de objetos con la forma { json: {...} }\nreturn [{\n  json: {\n    cuenta,           // nombre de la cuenta\n    saldo,            // saldo actual (número)\n    minimo,           // mínimo requerido (número)\n    diferencia,       // cuánto falta (0 si está OK)\n    bajo_de_limite: bajoDeLimite,   // true o false → lo usa el IF\n    procesado_al      // timestamp del momento de procesamiento\n  }\n}];"
+        },
+        "type": "n8n-nodes-base.code",
+        "typeVersion": 2,
+        "position": [
+          112,
+          0
+        ],
+        "id": "0e037e53-5154-44b9-9afd-134a77e7bebc",
+        "name": "Transforma.Datos"
+      },
+      {
+        "parameters": {
+          "content": "## `{ }` Nodo Code — Transformación de datos\n\nRecibe el POST del Webhook y prepara los datos para el IF.\nConvierte strings a números, calcula la diferencia entre\nsaldo y mínimo, y genera el campo `bajo_de_limite` (`true` / `false`)\nque decide qué rama tomar.\n\n| Campo | Descripción |\n|---|---|\n| `cuenta` | Nombre de la cuenta operativa |\n| `saldo` | Saldo actual convertido a número |\n| `minimo` | Mínimo requerido convertido a número |\n| `diferencia` | `minimo - saldo` (0 si está OK) |\n| `bajo_de_limite` | `true` si saldo < mínimo |\n| `procesado_al` | Timestamp de procesamiento |",
+          "height": 368,
+          "width": 432,
+          "color": 4
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          -48,
+          144
+        ],
+        "typeVersion": 1,
+        "id": "ee91a700-b23c-4fd7-ba35-2628ec9d9591",
+        "name": "Sticky Note7"
+      }
+    ],
+    "connections": {
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "EstadoOK.Falso",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send a message": {
+        "main": [
+          [
+            {
+              "node": "EstadoALERTA.Verdadero",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Post.Hoppscoth.Pruebas": {
+        "main": [
+          [
+            {
+              "node": "Transforma.Datos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Transforma.Datos": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "German Morvillo",
+    "name": "Version df31367d",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}

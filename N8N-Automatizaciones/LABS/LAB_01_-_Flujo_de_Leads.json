@@ -1,0 +1,2574 @@
+{
+  "updatedAt": "2026-05-18T14:05:26.552Z",
+  "createdAt": "2026-05-13T18:06:45.236Z",
+  "id": "ZW4d3qUhvN9mikOg",
+  "name": "LAB_01 - Flujo de Leads",
+  "active": true,
+  "isArchived": false,
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1200adbd-cdf0-4440-9a8e-e6d56740298c",
+              "leftValue": "={{ $json.email_validado }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "ba38b04b-5511-42b9-9a3b-baa299fa5215",
+              "leftValue": "={{ $json.pais }}",
+              "rightValue": "Argentina",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            },
+            {
+              "id": "b9966cac-9b54-489f-8481-f9587678c644",
+              "leftValue": "={{ $json.procesado }}",
+              "rightValue": "false",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1264,
+        240
+      ],
+      "id": "54604e8f-df77-4d7b-b474-8a626ccef4ea",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+          "mode": "list",
+          "cachedResultName": "Leads_LAB01",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1858478378,
+          "mode": "list",
+          "cachedResultName": "Todos_los_leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Rechazado",
+            "Nombre": "={{ $('Setear.Campos').item.json.nombre }}",
+            "Email": "={{ $('Setear.Campos').item.json.email }}",
+            "Interés": "={{ $('Setear.Campos').item.json.interes }}",
+            "País": "={{ $('Setear.Campos').item.json.pais }}",
+            "Empresa": "={{ $('Setear.Campos').item.json.empresa }}",
+            "Nota": "No apto",
+            "procesado": "true"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "País",
+              "displayName": "País",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Interés",
+              "displayName": "Interés",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Empresa",
+              "displayName": "Empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nota",
+              "displayName": "Nota",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "procesado",
+              "displayName": "procesado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1936,
+        272
+      ],
+      "id": "9981cba6-a845-4a33-a739-58878817d674",
+      "name": "No_Apto.Rechazado",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+          "mode": "list",
+          "cachedResultName": "Leads_LAB01",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1858478378,
+          "mode": "list",
+          "cachedResultName": "Todos_los_leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Estado": "Aprobado",
+            "Nombre": "={{ $('Setear.Campos').item.json.nombre }}",
+            "Email": "={{ $('Setear.Campos').item.json.email }}",
+            "Interés": "={{ $('Setear.Campos').item.json.interes }}",
+            "País": "={{ $('Setear.Campos').item.json.pais }}",
+            "Empresa": "={{ $('Setear.Campos').item.json.empresa }}",
+            "Nota": "Apto",
+            "procesado": "true"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "País",
+              "displayName": "País",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Interés",
+              "displayName": "Interés",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Empresa",
+              "displayName": "Empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nota",
+              "displayName": "Nota",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "procesado",
+              "displayName": "procesado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1712,
+        80
+      ],
+      "id": "511724cd-3edf-4fea-a076-5f03d31081ee",
+      "name": "Apto.Aprobado",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+          "mode": "list",
+          "cachedResultName": "Leads_LAB01",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1804784723,
+          "mode": "list",
+          "cachedResultName": "Form_Responses",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1804784723"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        816,
+        240
+      ],
+      "id": "8b558fb5-0cbe-4a9b-8374-f0747cbac8c2",
+      "name": "Recibir.Datos.GForms",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "W25tELVEkxsPyVzk",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7a10372a-0c08-41ba-b8b1-3b1d7bc031ce",
+              "name": "nombre",
+              "value": "={{ $json.Nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "e94fdb08-374d-46eb-987c-7d38ebed89fb",
+              "name": "email",
+              "value": "={{ $json.Email }}",
+              "type": "string"
+            },
+            {
+              "id": "18e36732-973c-4024-9cd7-4fa6ad7568c3",
+              "name": "pais",
+              "value": "={{ $json['País'] }}",
+              "type": "string"
+            },
+            {
+              "id": "342ab9e9-1d18-4b81-8e6a-89e00dff8fc5",
+              "name": "interes",
+              "value": "={{ $json['Interés'] }}",
+              "type": "string"
+            },
+            {
+              "id": "512e1d2d-4797-4a35-8cc4-ecb454b05a84",
+              "name": "empresa",
+              "value": "={{ $json.Empresa }}",
+              "type": "string"
+            },
+            {
+              "id": "4bc5f59a-8c09-4a13-bb9c-b9ca602b1d7e",
+              "name": "procesado",
+              "value": false,
+              "type": "boolean"
+            },
+            {
+              "id": "1e217814-9860-4ece-a50c-f843a4edddf2",
+              "name": "email_validado",
+              "value": "={{ $json.Email.includes('@') }}",
+              "type": "boolean"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        240
+      ],
+      "id": "c5caa527-9287-4c9c-a205-75d196d0f6aa",
+      "name": "Setear.Campos"
+    },
+    {
+      "parameters": {
+        "sendTo": "gerpruebas72@gmail.com",
+        "subject": "=Nuevo lead aprobado: {{ $json.nombre }}",
+        "message": "=Nuevo lead recibido:  Nombre: {{ $json.nombre }} Email: {{ $json.email }} País: {{ $json.pais }} Empresa: {{ $json.empresa }} Interés: {{ $json.interes }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1488,
+        144
+      ],
+      "id": "927273e3-3890-4ef4-b2a5-de6f298f4c32",
+      "name": "Pais.Argentina_Mail.Valido",
+      "webhookId": "25fd3582-9718-4d2e-b846-7e5e6bbf1f63",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DgHmm1yzTbMOxlxt",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+          "mode": "list",
+          "cachedResultName": "Leads_LAB01",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1858478378,
+          "mode": "list",
+          "cachedResultName": "Todos_los_leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Email": "={{ $('Setear.Campos').item.json.email }}",
+            "procesado": "true"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "País",
+              "displayName": "País",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Interés",
+              "displayName": "Interés",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Empresa",
+              "displayName": "Empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Nota",
+              "displayName": "Nota",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "procesado",
+              "displayName": "procesado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1488,
+        336
+      ],
+      "id": "cf883163-6328-4534-8f99-4d107f4fd536",
+      "name": "PaisNoArgentina.MailNoValido",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "gerpruebas72@gmail.com",
+        "subject": "=⚠️ Lead PRIORITARIO: {{ $('Setear.Campos').item.json.nombre }}",
+        "message": "=⚠️ LEAD PRIORITARIO - Requiere contacto inmediato<br><br>\nNombre: {{ $('Setear.Campos').item.json.nombre }}<br>\nEmail: {{ $('Setear.Campos').item.json.email }}<br>\nPaís: {{ $('Setear.Campos').item.json.pais }}<br>\nEmpresa: {{ $('Setear.Campos').item.json.empresa }}<br>\nInterés: {{ $('Setear.Campos').item.json.interes }}<br><br>\nEste lead fue clasificado como PRIORITARIO.<br>\nContactar dentro de las próximas 24hs.<br><br>\nRecibido: {{ $now.toFormat('dd/MM/yyyy HH:mm') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        2352,
+        32
+      ],
+      "id": "2cf1ec3e-fa13-4c1f-a85f-86e4ea27bf31",
+      "name": "Send a message",
+      "webhookId": "c06a2b48-4051-464b-a1c8-8134db2a7a62",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DgHmm1yzTbMOxlxt",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6f02841a-61be-4274-8636-da2fba005e01",
+              "leftValue": "={{ $json['Interés'] }}",
+              "rightValue": "prioritario",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2144,
+        144
+      ],
+      "id": "9635ccb9-9643-4b47-8498-ab04f4006e0d",
+      "name": "Apto.Aprobado.Prioritario"
+    },
+    {
+      "parameters": {
+        "content": "📋 LAB_01 — Flujo de Notificación de Leads\n\n🔵 TRIGGER\nGoogle Forms → Google Sheets → n8n detecta nueva fila\n\n⚙️ TRANSFORMACIÓN\nSet Node normaliza los campos y valida el email\n\n🔀 LÓGICA DE SEGMENTACIÓN\nIF: email válido AND país = Argentina\n  ✅ TRUE  → Lead APROBADO\n  ❌ FALSE → Lead RECHAZADO\n\n✅ RAMA APROBADA\n→ Gmail: notifica al equipo de ventas\n→ Sheets: registra en Todos_los_leads (Aprobado)\n→ IF prioritario: alerta urgente por Gmail\n\n❌ RAMA RECHAZADA\n→ Sheets: registra con nota \"No apto\"\n→ Sheets: registra en Todos_los_leads (Rechazado)\n\n📌 REQUISITOS CUMPLIDOS\n✔ IF Node para segmentar leads\n✔ Set Node para transformar datos\n✔ Campo \"procesado\" para evitar duplicados\n✔ Registro de todos los leads en Sheets\n✔ Alerta extra para leads prioritarios",
+        "height": 352,
+        "width": 432,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        624,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "cfc4aad9-729a-4856-aaa2-be78812feac9",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "📋 LAB_01 — Flujo de Notificación de Leads\n\n\n📌 REQUISITOS CUMPLIDOS\n✔ IF Node para segmentar leads\n✔ Set Node para transformar datos\n✔ Campo \"procesado\" para evitar duplicados\n✔ Registro de todos los leads en Sheets\n✔ Alerta extra para leads prioritarios",
+        "height": 192,
+        "width": 384,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        -144
+      ],
+      "typeVersion": 1,
+      "id": "dee9b37a-dab1-4e5e-a4f9-687f452e9277",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+          "mode": "list",
+          "cachedResultName": "Leads_LAB01",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1858478378,
+          "mode": "list",
+          "cachedResultName": "Todos_los_leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "procesado": "true",
+            "Email": "={{ $json.email }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "País",
+              "displayName": "País",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Interés",
+              "displayName": "Interés",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Empresa",
+              "displayName": "Empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Nota",
+              "displayName": "Nota",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "procesado",
+              "displayName": "procesado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2544,
+        192
+      ],
+      "id": "dca1c4eb-17b4-4bdb-99fb-b245c4a8ef0c",
+      "name": "Procesado.True",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+          "mode": "list",
+          "cachedResultName": "Leads_LAB01",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1858478378,
+          "mode": "list",
+          "cachedResultName": "Todos_los_leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "procesado": "true",
+            "Email": "={{ $json.email }}"
+          },
+          "matchingColumns": [
+            "Email"
+          ],
+          "schema": [
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "País",
+              "displayName": "País",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Interés",
+              "displayName": "Interés",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Empresa",
+              "displayName": "Empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Nota",
+              "displayName": "Nota",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "procesado",
+              "displayName": "procesado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2144,
+        336
+      ],
+      "id": "14e41830-03be-4b24-b859-a63754e0b9c3",
+      "name": "Procesado.True1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ce3572c9-ac53-4cbe-94f1-c403fc23b23d",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1696,
+        336
+      ],
+      "id": "5b74ac60-9e8e-4632-a0af-9f093b81797f",
+      "name": "Email.NoEmpty"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+          "mode": "list",
+          "cachedResultName": "Leads_LAB01",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1858478378,
+          "mode": "list",
+          "cachedResultName": "Todos_los_leads",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "procesado": "true",
+            "Nombre": "={{ $('Setear.Campos').item.json.nombre }}"
+          },
+          "matchingColumns": [
+            "Nombre"
+          ],
+          "schema": [
+            {
+              "id": "Nombre",
+              "displayName": "Nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "País",
+              "displayName": "País",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Interés",
+              "displayName": "Interés",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Empresa",
+              "displayName": "Empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Nota",
+              "displayName": "Nota",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Estado",
+              "displayName": "Estado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "procesado",
+              "displayName": "procesado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "displayName": "row_number",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "readOnly": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1936,
+        448
+      ],
+      "id": "595083e9-94f0-458c-865c-ecaadcbf65e4",
+      "name": "Procesado.True2",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Pais.Argentina_Mail.Valido",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PaisNoArgentina.MailNoValido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recibir.Datos.GForms": {
+      "main": [
+        [
+          {
+            "node": "Setear.Campos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Setear.Campos": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pais.Argentina_Mail.Valido": {
+      "main": [
+        [
+          {
+            "node": "Apto.Aprobado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PaisNoArgentina.MailNoValido": {
+      "main": [
+        [
+          {
+            "node": "Email.NoEmpty",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apto.Aprobado": {
+      "main": [
+        [
+          {
+            "node": "Apto.Aprobado.Prioritario",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apto.Aprobado.Prioritario": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Procesado.True",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Procesado.True",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No_Apto.Rechazado": {
+      "main": [
+        [
+          {
+            "node": "Procesado.True1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email.NoEmpty": {
+      "main": [
+        [
+          {
+            "node": "No_Apto.Rechazado",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Procesado.True2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "staticData": {
+    "node:Recibir.Datos.GForms": {
+      "documentId": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+      "sheetId": 1804784723,
+      "lastIndexChecked": 9
+    }
+  },
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "pinData": {},
+  "versionId": "d085744d-c002-4ec9-b912-90ca5c000956",
+  "activeVersionId": "d085744d-c002-4ec9-b912-90ca5c000956",
+  "triggerCount": 1,
+  "shared": [
+    {
+      "updatedAt": "2026-05-13T18:06:45.245Z",
+      "createdAt": "2026-05-13T18:06:45.245Z",
+      "role": "workflow:owner",
+      "workflowId": "ZW4d3qUhvN9mikOg",
+      "projectId": "AHRwMnLWy34FtBb9"
+    }
+  ],
+  "activeVersion": {
+    "updatedAt": "2026-05-14T15:52:39.000Z",
+    "createdAt": "2026-05-14T15:45:32.435Z",
+    "versionId": "d085744d-c002-4ec9-b912-90ca5c000956",
+    "workflowId": "ZW4d3qUhvN9mikOg",
+    "nodes": [
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "loose",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "1200adbd-cdf0-4440-9a8e-e6d56740298c",
+                "leftValue": "={{ $json.email_validado }}",
+                "rightValue": true,
+                "operator": {
+                  "type": "boolean",
+                  "operation": "true",
+                  "singleValue": true
+                }
+              },
+              {
+                "id": "ba38b04b-5511-42b9-9a3b-baa299fa5215",
+                "leftValue": "={{ $json.pais }}",
+                "rightValue": "Argentina",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              },
+              {
+                "id": "b9966cac-9b54-489f-8481-f9587678c644",
+                "leftValue": "={{ $json.procesado }}",
+                "rightValue": "false",
+                "operator": {
+                  "type": "string",
+                  "operation": "empty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "looseTypeValidation": true,
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          1264,
+          240
+        ],
+        "id": "54604e8f-df77-4d7b-b474-8a626ccef4ea",
+        "name": "If"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+            "mode": "list",
+            "cachedResultName": "Leads_LAB01",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1858478378,
+            "mode": "list",
+            "cachedResultName": "Todos_los_leads",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Estado": "Rechazado",
+              "Nombre": "={{ $('Setear.Campos').item.json.nombre }}",
+              "Email": "={{ $('Setear.Campos').item.json.email }}",
+              "Interés": "={{ $('Setear.Campos').item.json.interes }}",
+              "País": "={{ $('Setear.Campos').item.json.pais }}",
+              "Empresa": "={{ $('Setear.Campos').item.json.empresa }}",
+              "Nota": "No apto",
+              "procesado": "true"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": [
+              {
+                "id": "Nombre",
+                "displayName": "Nombre",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "País",
+                "displayName": "País",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Interés",
+                "displayName": "Interés",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Empresa",
+                "displayName": "Empresa",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Nota",
+                "displayName": "Nota",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Estado",
+                "displayName": "Estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "procesado",
+                "displayName": "procesado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1936,
+          272
+        ],
+        "id": "9981cba6-a845-4a33-a739-58878817d674",
+        "name": "No_Apto.Rechazado",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "WMux4BMLhFV7qENL",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+            "mode": "list",
+            "cachedResultName": "Leads_LAB01",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1858478378,
+            "mode": "list",
+            "cachedResultName": "Todos_los_leads",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Estado": "Aprobado",
+              "Nombre": "={{ $('Setear.Campos').item.json.nombre }}",
+              "Email": "={{ $('Setear.Campos').item.json.email }}",
+              "Interés": "={{ $('Setear.Campos').item.json.interes }}",
+              "País": "={{ $('Setear.Campos').item.json.pais }}",
+              "Empresa": "={{ $('Setear.Campos').item.json.empresa }}",
+              "Nota": "Apto",
+              "procesado": "true"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": [
+              {
+                "id": "Nombre",
+                "displayName": "Nombre",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "País",
+                "displayName": "País",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Interés",
+                "displayName": "Interés",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Empresa",
+                "displayName": "Empresa",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Nota",
+                "displayName": "Nota",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "Estado",
+                "displayName": "Estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "procesado",
+                "displayName": "procesado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1712,
+          80
+        ],
+        "id": "511724cd-3edf-4fea-a076-5f03d31081ee",
+        "name": "Apto.Aprobado",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "WMux4BMLhFV7qENL",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "pollTimes": {
+            "item": [
+              {
+                "mode": "everyMinute"
+              }
+            ]
+          },
+          "documentId": {
+            "__rl": true,
+            "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+            "mode": "list",
+            "cachedResultName": "Leads_LAB01",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1804784723,
+            "mode": "list",
+            "cachedResultName": "Form_Responses",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1804784723"
+          },
+          "event": "rowAdded",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheetsTrigger",
+        "typeVersion": 1,
+        "position": [
+          816,
+          240
+        ],
+        "id": "8b558fb5-0cbe-4a9b-8374-f0747cbac8c2",
+        "name": "Recibir.Datos.GForms",
+        "credentials": {
+          "googleSheetsTriggerOAuth2Api": {
+            "id": "W25tELVEkxsPyVzk",
+            "name": "Google Sheets Trigger account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "assignments": {
+            "assignments": [
+              {
+                "id": "7a10372a-0c08-41ba-b8b1-3b1d7bc031ce",
+                "name": "nombre",
+                "value": "={{ $json.Nombre }}",
+                "type": "string"
+              },
+              {
+                "id": "e94fdb08-374d-46eb-987c-7d38ebed89fb",
+                "name": "email",
+                "value": "={{ $json.Email }}",
+                "type": "string"
+              },
+              {
+                "id": "18e36732-973c-4024-9cd7-4fa6ad7568c3",
+                "name": "pais",
+                "value": "={{ $json['País'] }}",
+                "type": "string"
+              },
+              {
+                "id": "342ab9e9-1d18-4b81-8e6a-89e00dff8fc5",
+                "name": "interes",
+                "value": "={{ $json['Interés'] }}",
+                "type": "string"
+              },
+              {
+                "id": "512e1d2d-4797-4a35-8cc4-ecb454b05a84",
+                "name": "empresa",
+                "value": "={{ $json.Empresa }}",
+                "type": "string"
+              },
+              {
+                "id": "4bc5f59a-8c09-4a13-bb9c-b9ca602b1d7e",
+                "name": "procesado",
+                "value": false,
+                "type": "boolean"
+              },
+              {
+                "id": "1e217814-9860-4ece-a50c-f843a4edddf2",
+                "name": "email_validado",
+                "value": "={{ $json.Email.includes('@') }}",
+                "type": "boolean"
+              }
+            ]
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.set",
+        "typeVersion": 3.4,
+        "position": [
+          1040,
+          240
+        ],
+        "id": "c5caa527-9287-4c9c-a205-75d196d0f6aa",
+        "name": "Setear.Campos"
+      },
+      {
+        "parameters": {
+          "sendTo": "gerpruebas72@gmail.com",
+          "subject": "=Nuevo lead aprobado: {{ $json.nombre }}",
+          "message": "=Nuevo lead recibido:  Nombre: {{ $json.nombre }} Email: {{ $json.email }} País: {{ $json.pais }} Empresa: {{ $json.empresa }} Interés: {{ $json.interes }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          1488,
+          144
+        ],
+        "id": "927273e3-3890-4ef4-b2a5-de6f298f4c32",
+        "name": "Pais.Argentina_Mail.Valido",
+        "webhookId": "25fd3582-9718-4d2e-b846-7e5e6bbf1f63",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "DgHmm1yzTbMOxlxt",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "append",
+          "documentId": {
+            "__rl": true,
+            "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+            "mode": "list",
+            "cachedResultName": "Leads_LAB01",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1858478378,
+            "mode": "list",
+            "cachedResultName": "Todos_los_leads",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "Email": "={{ $('Setear.Campos').item.json.email }}",
+              "procesado": "true"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": [
+              {
+                "id": "Nombre",
+                "displayName": "Nombre",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "País",
+                "displayName": "País",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Interés",
+                "displayName": "Interés",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Empresa",
+                "displayName": "Empresa",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Nota",
+                "displayName": "Nota",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Estado",
+                "displayName": "Estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "procesado",
+                "displayName": "procesado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1488,
+          336
+        ],
+        "id": "cf883163-6328-4534-8f99-4d107f4fd536",
+        "name": "PaisNoArgentina.MailNoValido",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "WMux4BMLhFV7qENL",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "sendTo": "gerpruebas72@gmail.com",
+          "subject": "=⚠️ Lead PRIORITARIO: {{ $('Setear.Campos').item.json.nombre }}",
+          "message": "=⚠️ LEAD PRIORITARIO - Requiere contacto inmediato<br><br>\nNombre: {{ $('Setear.Campos').item.json.nombre }}<br>\nEmail: {{ $('Setear.Campos').item.json.email }}<br>\nPaís: {{ $('Setear.Campos').item.json.pais }}<br>\nEmpresa: {{ $('Setear.Campos').item.json.empresa }}<br>\nInterés: {{ $('Setear.Campos').item.json.interes }}<br><br>\nEste lead fue clasificado como PRIORITARIO.<br>\nContactar dentro de las próximas 24hs.<br><br>\nRecibido: {{ $now.toFormat('dd/MM/yyyy HH:mm') }}",
+          "options": {}
+        },
+        "type": "n8n-nodes-base.gmail",
+        "typeVersion": 2.2,
+        "position": [
+          2352,
+          32
+        ],
+        "id": "2cf1ec3e-fa13-4c1f-a85f-86e4ea27bf31",
+        "name": "Send a message",
+        "webhookId": "c06a2b48-4051-464b-a1c8-8134db2a7a62",
+        "credentials": {
+          "gmailOAuth2": {
+            "id": "DgHmm1yzTbMOxlxt",
+            "name": "Gmail account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "6f02841a-61be-4274-8636-da2fba005e01",
+                "leftValue": "={{ $json['Interés'] }}",
+                "rightValue": "prioritario",
+                "operator": {
+                  "type": "string",
+                  "operation": "equals"
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          2144,
+          144
+        ],
+        "id": "9635ccb9-9643-4b47-8498-ab04f4006e0d",
+        "name": "Apto.Aprobado.Prioritario"
+      },
+      {
+        "parameters": {
+          "content": "📋 LAB_01 — Flujo de Notificación de Leads\n\n🔵 TRIGGER\nGoogle Forms → Google Sheets → n8n detecta nueva fila\n\n⚙️ TRANSFORMACIÓN\nSet Node normaliza los campos y valida el email\n\n🔀 LÓGICA DE SEGMENTACIÓN\nIF: email válido AND país = Argentina\n  ✅ TRUE  → Lead APROBADO\n  ❌ FALSE → Lead RECHAZADO\n\n✅ RAMA APROBADA\n→ Gmail: notifica al equipo de ventas\n→ Sheets: registra en Todos_los_leads (Aprobado)\n→ IF prioritario: alerta urgente por Gmail\n\n❌ RAMA RECHAZADA\n→ Sheets: registra con nota \"No apto\"\n→ Sheets: registra en Todos_los_leads (Rechazado)\n\n📌 REQUISITOS CUMPLIDOS\n✔ IF Node para segmentar leads\n✔ Set Node para transformar datos\n✔ Campo \"procesado\" para evitar duplicados\n✔ Registro de todos los leads en Sheets\n✔ Alerta extra para leads prioritarios",
+          "height": 352,
+          "width": 432,
+          "color": 6
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          624,
+          -144
+        ],
+        "typeVersion": 1,
+        "id": "cfc4aad9-729a-4856-aaa2-be78812feac9",
+        "name": "Sticky Note"
+      },
+      {
+        "parameters": {
+          "content": "📋 LAB_01 — Flujo de Notificación de Leads\n\n\n📌 REQUISITOS CUMPLIDOS\n✔ IF Node para segmentar leads\n✔ Set Node para transformar datos\n✔ Campo \"procesado\" para evitar duplicados\n✔ Registro de todos los leads en Sheets\n✔ Alerta extra para leads prioritarios",
+          "height": 192,
+          "width": 384,
+          "color": 3
+        },
+        "type": "n8n-nodes-base.stickyNote",
+        "position": [
+          1280,
+          -144
+        ],
+        "typeVersion": 1,
+        "id": "dee9b37a-dab1-4e5e-a4f9-687f452e9277",
+        "name": "Sticky Note1"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+            "mode": "list",
+            "cachedResultName": "Leads_LAB01",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1858478378,
+            "mode": "list",
+            "cachedResultName": "Todos_los_leads",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "procesado": "true",
+              "Email": "={{ $json.email }}"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": [
+              {
+                "id": "Nombre",
+                "displayName": "Nombre",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "País",
+                "displayName": "País",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Interés",
+                "displayName": "Interés",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Empresa",
+                "displayName": "Empresa",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Nota",
+                "displayName": "Nota",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Estado",
+                "displayName": "Estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "procesado",
+                "displayName": "procesado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2544,
+          192
+        ],
+        "id": "dca1c4eb-17b4-4bdb-99fb-b245c4a8ef0c",
+        "name": "Procesado.True",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "WMux4BMLhFV7qENL",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+            "mode": "list",
+            "cachedResultName": "Leads_LAB01",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1858478378,
+            "mode": "list",
+            "cachedResultName": "Todos_los_leads",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "procesado": "true",
+              "Email": "={{ $json.email }}"
+            },
+            "matchingColumns": [
+              "Email"
+            ],
+            "schema": [
+              {
+                "id": "Nombre",
+                "displayName": "Nombre",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "País",
+                "displayName": "País",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Interés",
+                "displayName": "Interés",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Empresa",
+                "displayName": "Empresa",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Nota",
+                "displayName": "Nota",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Estado",
+                "displayName": "Estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "procesado",
+                "displayName": "procesado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          2144,
+          336
+        ],
+        "id": "14e41830-03be-4b24-b859-a63754e0b9c3",
+        "name": "Procesado.True1",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "WMux4BMLhFV7qENL",
+            "name": "Google Sheets account"
+          }
+        }
+      },
+      {
+        "parameters": {
+          "conditions": {
+            "options": {
+              "caseSensitive": true,
+              "leftValue": "",
+              "typeValidation": "strict",
+              "version": 3
+            },
+            "conditions": [
+              {
+                "id": "ce3572c9-ac53-4cbe-94f1-c403fc23b23d",
+                "leftValue": "={{ $json.email }}",
+                "rightValue": "",
+                "operator": {
+                  "type": "string",
+                  "operation": "notEmpty",
+                  "singleValue": true
+                }
+              }
+            ],
+            "combinator": "and"
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.if",
+        "typeVersion": 2.3,
+        "position": [
+          1696,
+          336
+        ],
+        "id": "5b74ac60-9e8e-4632-a0af-9f093b81797f",
+        "name": "Email.NoEmpty"
+      },
+      {
+        "parameters": {
+          "operation": "update",
+          "documentId": {
+            "__rl": true,
+            "value": "1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY",
+            "mode": "list",
+            "cachedResultName": "Leads_LAB01",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit?usp=drivesdk"
+          },
+          "sheetName": {
+            "__rl": true,
+            "value": 1858478378,
+            "mode": "list",
+            "cachedResultName": "Todos_los_leads",
+            "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1I1Y5qd-VGCnnHXwhTYVx-bxdQY2w7FDcoAUGgIlYxQY/edit#gid=1858478378"
+          },
+          "columns": {
+            "mappingMode": "defineBelow",
+            "value": {
+              "procesado": "true",
+              "Nombre": "={{ $('Setear.Campos').item.json.nombre }}"
+            },
+            "matchingColumns": [
+              "Nombre"
+            ],
+            "schema": [
+              {
+                "id": "Nombre",
+                "displayName": "Nombre",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": false
+              },
+              {
+                "id": "Email",
+                "displayName": "Email",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "País",
+                "displayName": "País",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Interés",
+                "displayName": "Interés",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Empresa",
+                "displayName": "Empresa",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Nota",
+                "displayName": "Nota",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "Estado",
+                "displayName": "Estado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true,
+                "removed": true
+              },
+              {
+                "id": "procesado",
+                "displayName": "procesado",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "string",
+                "canBeUsedToMatch": true
+              },
+              {
+                "id": "row_number",
+                "displayName": "row_number",
+                "required": false,
+                "defaultMatch": false,
+                "display": true,
+                "type": "number",
+                "canBeUsedToMatch": true,
+                "readOnly": true,
+                "removed": true
+              }
+            ],
+            "attemptToConvertTypes": false,
+            "convertFieldsToString": false
+          },
+          "options": {}
+        },
+        "type": "n8n-nodes-base.googleSheets",
+        "typeVersion": 4.7,
+        "position": [
+          1936,
+          448
+        ],
+        "id": "595083e9-94f0-458c-865c-ecaadcbf65e4",
+        "name": "Procesado.True2",
+        "credentials": {
+          "googleSheetsOAuth2Api": {
+            "id": "WMux4BMLhFV7qENL",
+            "name": "Google Sheets account"
+          }
+        }
+      }
+    ],
+    "connections": {
+      "If": {
+        "main": [
+          [
+            {
+              "node": "Pais.Argentina_Mail.Valido",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "PaisNoArgentina.MailNoValido",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Recibir.Datos.GForms": {
+        "main": [
+          [
+            {
+              "node": "Setear.Campos",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Setear.Campos": {
+        "main": [
+          [
+            {
+              "node": "If",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Pais.Argentina_Mail.Valido": {
+        "main": [
+          [
+            {
+              "node": "Apto.Aprobado",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "PaisNoArgentina.MailNoValido": {
+        "main": [
+          [
+            {
+              "node": "Email.NoEmpty",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Apto.Aprobado": {
+        "main": [
+          [
+            {
+              "node": "Apto.Aprobado.Prioritario",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Apto.Aprobado.Prioritario": {
+        "main": [
+          [
+            {
+              "node": "Send a message",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Procesado.True",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Send a message": {
+        "main": [
+          [
+            {
+              "node": "Procesado.True",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "No_Apto.Rechazado": {
+        "main": [
+          [
+            {
+              "node": "Procesado.True1",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      },
+      "Email.NoEmpty": {
+        "main": [
+          [
+            {
+              "node": "No_Apto.Rechazado",
+              "type": "main",
+              "index": 0
+            }
+          ],
+          [
+            {
+              "node": "Procesado.True2",
+              "type": "main",
+              "index": 0
+            }
+          ]
+        ]
+      }
+    },
+    "authors": "German Morvillo",
+    "name": "Version d085744d",
+    "description": "",
+    "autosaved": true
+  },
+  "tags": []
+}
