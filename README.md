@@ -1,6 +1,6 @@
 # 🧩 Contenido del Repositorio
 
-## 📂 BPMN — Introduction to BPMN Concepts
+## 📂 BPMN
 Incluye diagramas, conceptos fundamentales y ejemplos prácticos de modelado de procesos:
 
 - Diagramas BPMN básicos e intermedios
@@ -8,15 +8,7 @@ Incluye diagramas, conceptos fundamentales y ejemplos prácticos de modelado de 
 - Ejemplos de procesos reales modelados
 - Buenas prácticas de documentación
 
-## 📂 UiPath — Process Examples
-Ejemplos de automatizaciones desarrolladas en UiPath Studio:
-
-- Flujos en XAML
-- Secuencias y workflows reutilizables
-- Ejercicios de automatización
-- Casos de uso aplicados a procesos modelados en BPMN
-
-## 📂 Power Automate — Archivos_PA
+## 📂 Power Automate
 Automatizaciones low-code:
 
 - Flujos automatizados
