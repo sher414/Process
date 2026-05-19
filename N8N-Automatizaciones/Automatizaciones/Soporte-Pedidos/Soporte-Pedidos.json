@@ -1,0 +1,483 @@
+{
+  "name": "Soporte-Pedidos",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "filters": {
+          "q": "=subject:pedido -from:me"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        -576,
+        -144
+      ],
+      "id": "ee584448-7449-42e7-b404-a73388894aa3",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DgHmm1yzTbMOxlxt",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nconst remitente = item.From || '';\n// Limpiamos el asunto eliminando los \"Re:\" acumulados\nconst asuntoRaw = item.Subject || '';\nconst asunto = asuntoRaw.replace(/^(Re:\\s*)+/gi, '').trim();\nconst cuerpo = item.snippet || '';\nconst emailId = item.id || '';\nconst fecha = new Date(parseInt(item.internalDate)).toISOString();\n\nconst matchPedido = asunto.match(/#(\\d+)/);\nconst numeroPedido = matchPedido ? matchPedido[1] : 'Sin número';\n\nconst ticketId = `TICKET-${Date.now()}`;\n\nreturn [{\n  json: {\n    ticketId,\n    numeroPedido,\n    remitente,\n    asunto,\n    cuerpo,\n    emailId,\n    fecha\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -352,
+        -144
+      ],
+      "id": "ace45e16-cbe0-4cd0-8b62-ae194f962abe",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appfyx8uJCH66SEsP",
+          "mode": "list",
+          "cachedResultName": "Soporte_Tickets",
+          "cachedResultUrl": "https://airtable.com/appfyx8uJCH66SEsP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLXJn84yC66g4dV",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appfyx8uJCH66SEsP/tblLXJn84yC66g4dV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticketId": "={{ $json.ticketId }}",
+            "nombrePedido": "={{ $json.numeroPedido }}",
+            "remitente": "={{ $json.remitente }}",
+            "asunto": "={{ $json.asunto }}",
+            "cuerpo": "={{ $json.cuerpo }}",
+            "fecha": "={{ $json.fecha }}",
+            "categoria": "Sin clasificar"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ticketId",
+              "displayName": "ticketId",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "nombrePedido",
+              "displayName": "nombrePedido",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "remitente",
+              "displayName": "remitente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "asunto",
+              "displayName": "asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "cuerpo",
+              "displayName": "cuerpo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "categoria",
+              "displayName": "categoria",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        -128,
+        -144
+      ],
+      "id": "fd673ece-70f8-4c27-944d-b350cbfd0095",
+      "name": "Create a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "9k6hCaJdcd9kXJlL",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Code in JavaScript').item.json.remitente }}",
+        "subject": "={{ 'Re: ' + $('Code in JavaScript').item.json.asunto }}",
+        "message": "=<h2>✅ Recibimos tu consulta</h2>  <p>Hola, gracias por contactarnos.</p>  <p>Tu caso fue registrado con el siguiente número de ticket:</p>  <h3>🎫 {{ $('Code in JavaScript').item.json.ticketId }}</h3>  <table>   <tr>     <td><strong>Pedido:</strong></td>     <td>#{{ $('Code in JavaScript').item.json.numeroPedido }}</td>   </tr>   <tr>     <td><strong>Categoría:</strong></td>     <td>En revisión</td>   </tr>   <tr>     <td><strong>Tiempo estimado:</strong></td>     <td>24 a 48 horas hábiles</td>   </tr> </table>  <br> <p>Nuestro equipo de soporte se pondrá en contacto a la brevedad.</p> <p style=\"color:#888\">Este es un mensaje automático — por favor no respondas este email.</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        592,
+        -144
+      ],
+      "id": "deaa2ef8-33b9-4a1d-be13-ae6f2f0cddab",
+      "name": "Send a message",
+      "webhookId": "5d881f01-f2d0-4f2f-b5a9-b0cbdc096649",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DgHmm1yzTbMOxlxt",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Clasificá el siguiente mensaje de soporte en UNA sola de estas categorías: \nLogística, Facturación o Producto.\nRespondé SOLO con la categoría, sin explicación, sin puntos.\n\nMensaje: {{ $('Code in JavaScript').item.json.cuerpo }}"
+            }
+          ]
+        },
+        "builtInTools": {},
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1.2,
+      "position": [
+        64,
+        -144
+      ],
+      "id": "f8eb9fec-a4d0-44a8-b190-80b77068353b",
+      "name": "Message a model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "p6ehcanO6NA53FI4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appfyx8uJCH66SEsP",
+          "mode": "list",
+          "cachedResultName": "Soporte_Tickets",
+          "cachedResultUrl": "https://airtable.com/appfyx8uJCH66SEsP"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tblLXJn84yC66g4dV",
+          "mode": "list",
+          "cachedResultName": "Table 1",
+          "cachedResultUrl": "https://airtable.com/appfyx8uJCH66SEsP/tblLXJn84yC66g4dV"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ticketId": "={{ $('Create a record').item.json.fields.ticketId }}",
+            "categoria": "={{ $('Message a model').item.json.content.parts[0].text }}"
+          },
+          "matchingColumns": [
+            "ticketId"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "ticketId",
+              "displayName": "ticketId",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "nombrePedido",
+              "displayName": "nombrePedido",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "remitente",
+              "displayName": "remitente",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "asunto",
+              "displayName": "asunto",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "cuerpo",
+              "displayName": "cuerpo",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "categoria",
+              "displayName": "categoria",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "fecha",
+              "displayName": "fecha",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        -144
+      ],
+      "id": "a108bd8a-cb54-41ec-acfa-b495f7a9a3da",
+      "name": "Create or update a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "9k6hCaJdcd9kXJlL",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 🎯 Sistema de Soporte Automático\n\n**Flujo:**\nGmail Trigger → Code JS → Airtable → Gemini → Airtable Update → Gmail Respuesta\n\n**Qué hace:**\n- Detecta emails con la palabra \"pedido\"\n- Registra el ticket en Airtable\n- Clasifica el problema con IA\n- Responde al cliente automáticamente",
+        "height": 240,
+        "width": 576
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -592,
+        -400
+      ],
+      "typeVersion": 1,
+      "id": "4447aed0-9294-457b-95e2-cd27d4a2912b",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## 🤖 Gemini — Clasificación IA\nCategorías posibles:\n- 📦 Logística\n- 💳 Facturación\n- 🛒 Producto",
+        "height": 192,
+        "width": 256
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        48
+      ],
+      "typeVersion": 1,
+      "id": "8a082534-8288-4db9-b499-732c7653a0a8",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## ⚠️ Filtro Gmail Trigger\n`subject:pedido -from:me`\nExcluye los emails enviados por el propio flujo."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        32
+      ],
+      "typeVersion": 1,
+      "id": "50648c2a-cfe5-4254-953e-b93e23326220",
+      "name": "Sticky Note2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Create a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a record": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        []
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Create or update a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update a record": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": true
+  },
+  "versionId": "6445af06-6958-45b9-b683-2bf4021c49db",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7622ee26337aca7755637da52291f31c11d595b5b3d4235fbc106498c3d6ef0c"
+  },
+  "id": "7SDZtbRsru9hbKPw",
+  "tags": []
+}
