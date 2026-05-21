@@ -1,0 +1,199 @@
+{
+  "name": "Chat_Gemini_Extract_Info",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        0,
+        0
+      ],
+      "id": "ba9c3cc5-6403-4328-a746-e99fe6918ae3",
+      "name": "When chat message received",
+      "webhookId": "21b203d4-be29-4868-8ef1-7342654f3766"
+    },
+    {
+      "parameters": {
+        "text": "=={{ $json.chatInput + \" Contexto del candidato: \" + $json.cv }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Nombre",
+              "description": "Nombre del candidato"
+            },
+            {
+              "name": "Titulo",
+              "description": "Titulo profesional"
+            },
+            {
+              "name": "Experiencia_Anos",
+              "type": "number",
+              "description": "Años de experiencia"
+            },
+            {
+              "name": "Habilidades",
+              "description": "Skills relevantes para la consulta"
+            },
+            {
+              "name": "Disponibilidad",
+              "description": "Cuándo puede empezar"
+            },
+            {
+              "name": "Busca",
+              "description": "Qué tipo de trabajo busca"
+            },
+            {
+              "name": "Proyectos_N8N",
+              "description": "Proyectos de automatización realizados"
+            },
+            {
+              "name": "Respuesta",
+              "description": "Respuesta directa a la pregunta del reclutador"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        432,
+        0
+      ],
+      "id": "65bcd2a1-e8c5-4451-ab37-8f56b63d9fd7",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        432,
+        176
+      ],
+      "id": "238d60d2-0b66-4ba9-ab55-875805ac33d7",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "p6ehcanO6NA53FI4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// MI CV EN FORMATO JSON\nconst item = $input.first().json;\n\nconst cv = {\n  \"nombre\": \"German Pablo Morvillo\",\n  \"titulo\": \"Ingeniero Industrial – UTN\",\n  \"contacto\": {\n    \"telefono\": \"1165327238\",\n    \"email\": \"germanmorvillo@hotmail.com\",\n    \"ubicacion\": \"Banfield, Buenos Aires, Argentina\",\n    \"linkedin\": \"https://www.linkedin.com/in/germanpablo-morvillo/\"\n  },\n  \"objetivo\": \"Ingeniero Industrial con más de 15 años liderando mejora de procesos, automatización y transformación digital en organizaciones de alto volumen (Telecom, Red Link, Swiss Medical).\",\n  \"disponibilidad\": \"Inmediata – presencial Buenos Aires y remoto LATAM\",\n  \"busca\": \"Proyectos freelance y oportunidades en relación de dependencia en automatización, mejora de procesos y transformación digital\",\n  \"habilidades\": [\n    \"Relevamiento de procesos\",\n    \"Automatización con N8N\",\n    \"Six Sigma Green Belt\",\n    \"Optimización de procesos\",\n    \"Power Virtual Agents\",\n    \"Bases de Datos / SQL\",\n    \"Transformación digital\",\n    \"BPMN / ARIS / Visio\",\n    \"Salesforce / SAP / CRM\",\n    \"SharePoint / Office 365\",\n    \"JavaScript\",\n    \"Documentación técnico-funcional\",\n    \"Capacitación y coaching\"\n  ],\n  \"idiomas\": {\n    \"ingles\": \"Avanzado (escrito y oral)\"\n  },\n  \"experiencia\": [\n    {\n      \"empresa\": \"Telecom Argentina\",\n      \"cargo\": \"Analista / Soporte / Mejora de Procesos CX\",\n      \"periodo\": \"09/2021 – 03/2026\",\n      \"logros\": [\n        \"Automatización parcial del cierre masivo de órdenes reduciendo 40% la carga manual\",\n        \"Desarrollo del tablero nacional de recupero de CPEs para todas las bases de Argentina\",\n        \"Relevamiento y documentación de procesos end-to-end\",\n        \"Gestión de incidentes en Salesforce y CRM en canales BTB y BTC\",\n        \"Participación en equipos ágiles definiendo Historias de Usuario\",\n        \"Implementación de webforms en Office 365 para digitalizar flujos\"\n      ]\n    },\n    {\n      \"empresa\": \"Red Link S.A.\",\n      \"cargo\": \"Analista Senior de Procesos Tecnológicos\",\n      \"periodo\": \"09/2017 – 09/2021\",\n      \"logros\": [\n        \"Rediseño de procesos end-to-end con ARIS y BPMN\",\n        \"Implementación de prácticas DevOps (CI/CD, Git, Jenkins)\",\n        \"Gestión de proyectos con KPIs, OKRs y control de SLA\",\n        \"Automatización de workflows en plataformas de tickets (OpenShift)\"\n      ]\n    },\n    {\n      \"empresa\": \"Invap Caputo CNEA – Proyecto RA-10\",\n      \"cargo\": \"Analista Gestión de la Calidad de Obra\",\n      \"periodo\": \"03/2015 – 09/2017\",\n      \"logros\": [\n        \"Seguimiento del sistema de calidad en Obra Civil\",\n        \"Planificación y evaluación de auditorías\",\n        \"Supervisión del control de NC, AC y preventivas\"\n      ]\n    },\n    {\n      \"empresa\": \"Consultoría en Ingeniería Industrial\",\n      \"cargo\": \"Senior Consultant – Auditorías de Control\",\n      \"periodo\": \"10/2013 – 02/2015\",\n      \"logros\": [\n        \"Re-ingeniería de procesos, análisis de costos y KPIs\",\n        \"Analista Funcional en Banco Santander Río (CRM)\",\n        \"Generación de Auditorías de Control estilo Mystery Shoppers\"\n      ]\n    },\n    {\n      \"empresa\": \"Swiss Medical Group\",\n      \"cargo\": \"Ingeniero de Procesos\",\n      \"periodo\": \"08/2010 – 11/2011\",\n      \"logros\": [\n        \"Análisis, mejora y reingeniería de procesos en todas las unidades de negocio\",\n        \"Modelado BPMN y elaboración de procedimientos\"\n      ]\n    }\n  ],\n  \"formacion\": [\n    {\n      \"titulo\": \"Ingeniería Industrial\",\n      \"institucion\": \"UTN\",\n      \"periodo\": \"2004 – 2011\"\n    },\n    {\n      \"titulo\": \"Six Sigma Green Belt\",\n      \"institucion\": \"UTN\",\n      \"periodo\": \"2023\"\n    },\n    {\n      \"titulo\": \"JavaScript / HTML5 / C# .NET / SQL\",\n      \"institucion\": \"EducaciónIT\",\n      \"periodo\": \"2019 – 2020\"\n    },\n    {\n      \"titulo\": \"Power Virtual Agents\",\n      \"institucion\": \"LinkedIn Learning\",\n      \"periodo\": \"2023\"\n    }\n  ],\n  \"proyectos_n8n\": [\n    {\n      \"nombre\": \"Sistema de Soporte Automático\",\n      \"descripcion\": \"Gmail Trigger + Airtable + Gemini. Detecta emails, crea tickets y clasifica con IA.\",\n      \"stack\": [\"N8N\", \"Gmail API\", \"Airtable\", \"Google Gemini\", \"JavaScript\"]\n    },\n    {\n      \"nombre\": \"Alerta de Saldo Bancario\",\n      \"descripcion\": \"Webhook + IF + Gmail + Sheets. Detecta saldo bajo y envía alerta automática.\",\n      \"stack\": [\"N8N\", \"Webhook\", \"Gmail\", \"Google Sheets\", \"JavaScript\"]\n    },\n    {\n      \"nombre\": \"CV Inteligente con Chat IA\",\n      \"descripcion\": \"Chat trigger + Information Extractor + Gemini. Responde preguntas de reclutadores.\",\n      \"stack\": [\"N8N\", \"Google Gemini\", \"Information Extractor\"]\n    }\n  ]\n};\n\nreturn [{\n  json: {\n    chatInput: item.chatInput,\n    cv: JSON.stringify(cv)\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "4cb71db3-7212-4572-824c-eeda1b202c7d",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "699c24c6-e6c7-410e-8eb1-ff5f3a9b12e9",
+              "name": "output",
+              "value": "={{ $json.output.Respuesta }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        784,
+        0
+      ],
+      "id": "9899b42e-bae7-425f-86e5-ef5147ce68b1",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "content": "## 🤖 CV Inteligente con IA\n\n**Flujo:**\nChat Trigger → Code JS → Information Extractor → Gemini → Set\n\n---\n\n### ¿Qué hace?\nUn reclutador escribe una pregunta en el chat\ny la IA responde basándose en el CV de Germán\nde forma natural y profesional.\n\n---\n\n### Preguntas de ejemplo\n- ¿Qué experiencia tiene en automatización?\n- ¿Cuáles son sus proyectos más recientes?\n- ¿Está disponible para trabajar?\n- ¿Qué herramientas maneja?\n\n---\n\n### Stack\n`N8N` `Google Gemini` `JavaScrip",
+        "height": 400,
+        "width": 432
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -512,
+        -112
+      ],
+      "typeVersion": 1,
+      "id": "f4fd5d08-53b5-4944-8ee1-1ef7b1d6246e",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "db29cb54-c570-497a-b302-89fee3e5532c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7622ee26337aca7755637da52291f31c11d595b5b3d4235fbc106498c3d6ef0c"
+  },
+  "id": "zAyVCHTYh1CoSiSX",
+  "tags": []
+}
