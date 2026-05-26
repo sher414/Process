@@ -1,0 +1,264 @@
+{
+  "name": "Agente de productividad semanal",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Planificador de Productividad Semanal",
+        "formDescription": "Completá el formulario para generar tu plan de tareas semanal personalizado",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "rol_principal",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Estudiante"
+                  },
+                  {
+                    "option": "Desarrollador"
+                  },
+                  {
+                    "option": "Manager"
+                  },
+                  {
+                    "option": "Diseñador"
+                  },
+                  {
+                    "option": "Otro"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "objetivos_lunes",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "objetivos_martes"
+            },
+            {
+              "fieldLabel": "objetivos_miercoles"
+            },
+            {
+              "fieldLabel": "objetivos_jueves"
+            },
+            {
+              "fieldLabel": "objetivos_viernes"
+            },
+            {
+              "fieldLabel": "bloqueos_de_tiempo",
+              "fieldType": "textarea"
+            },
+            {
+              "fieldLabel": "horas_laborales_diarias",
+              "fieldType": "number",
+              "placeholder": "Ingresá un número entre 1 y 24",
+              "defaultValue": "6"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -256,
+        0
+      ],
+      "id": "d14bb544-28a1-4e34-8c29-4a558464f89b",
+      "name": "On form submission",
+      "webhookId": "4e2a0e6c-7bfc-48e1-a5b8-c06f5ff9068a"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un Especialista en productividad y bienestar laboral con amplia experiencia en gestión del tiempo y planificación estratégica.\n\n## INFORMACIÓN DEL USUARIO\n- Rol principal: {{ $('On form submission').item.json.rol_principal }}\n- Horas laborables por día: {{ $('On form submission').item.json.horas_laborales_diarias }}\n\n## OBJETIVOS SEMANALES\n- Lunes: {{ $('On form submission').item.json.objetivos_lunes }}\n- Martes: {{ $('On form submission').item.json.objetivos_martes }}\n- Miércoles: {{ $('On form submission').item.json.objetivos_miercoles }}\n- Jueves: {{ $('On form submission').item.json.objetivos_jueves }}\n- Viernes: {{ $('On form submission').item.json.objetivos_viernes }}\n\n## RESTRICCIONES\n- Bloqueos de tiempo: {{ $('On form submission').item.json.bloqueos_de_tiempo }}\n- No exceder: {{ $('On form submission').item.json.horas_laborales_diarias }} horas por día\n\n## TAREA\nGenera un plan de tareas semanal detallado y equilibrado considerando el rol y los objetivos del usuario.\n\n## FORMATO DE SALIDA\nDevuelve ÚNICAMENTE una tabla Markdown con estas columnas:\n| Día | Bloque de Tiempo | Tarea Asignada |\nIMPORTANTE: No uses bloques de código (no uses backticks ```). \nDevuelve la tabla directamente sin ningún wrapper.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        208,
+        0
+      ],
+      "id": "d7b9b2fa-320f-4b43-b8ad-ab0d976eca23",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        240
+      ],
+      "id": "2fabdb49-0069-4524-9332-f1c8461ed16f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "p6ehcanO6NA53FI4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "deba1862-121e-4459-a915-db890854df80",
+              "leftValue": "={{ $json.horas_laborales_diarias }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            },
+            {
+              "id": "f5497259-2e8c-48c9-8f02-758f1850a127",
+              "leftValue": "={{ $json.horas_laborales_diarias }}",
+              "rightValue": 24,
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "4ce6d3b7-9003-400a-a7ad-56fb5e45b5e8",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "⚠️ Error: Las horas laborables deben ser estar comprendidas en el rango entre 1 y 24.\nPor favor volvé al formulario e ingresá un valor válido."
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        96,
+        192
+      ],
+      "id": "35c71382-6931-4b70-a1f3-da18e55d9a72",
+      "name": "FalsoHorasLaborales",
+      "webhookId": "9fb20233-4226-4bd2-bc2e-1353583f1362"
+    },
+    {
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "=<html>\n<body style=\"font-family: Arial; padding: 20px;\">\n<h2>📅 Tu Plan Semanal</h2>\n<pre style=\"background:#f4f4f4; padding:15px; border-radius:8px; white-space: pre-wrap;\">\n{{ $('Basic LLM Chain').item.json.text }}\n</pre>\n</body>\n</html>"
+      },
+      "type": "n8n-nodes-base.form",
+      "typeVersion": 2.5,
+      "position": [
+        560,
+        0
+      ],
+      "id": "4c211d42-2f94-4ac4-9394-9841c9646d84",
+      "name": "HorasLaborales1-24",
+      "webhookId": "36c7c051-586b-4cb6-911c-77ef9da8e485"
+    },
+    {
+      "parameters": {
+        "content": "📋 AGENTE DE PRODUCTIVIDAD SEMANAL\n\n🔵 TRIGGER — On Form Submission\n- rol_principal (dropdown)\n- objetivo_lunes al viernes (text)\n- bloqueos_de_tiempo (textarea)\n- horas_laborales_diarias (number, default: 6)\n\n🟡 IF — Validación de horas\n- horas > 0 AND horas <= 24\n- TRUE → LLM\n- FALSE → Error\n\n🟣 BASIC LLM CHAIN — Gemini 3 Flash\n- Persona: Especialista en productividad\n- Variables del formulario inyectadas\n- Salida: tabla Markdown sin backticks\n\n🟢 FORM ENDING — Resultado\n- Show Text con HTML\n- Tabla: Día | Bloque | Tarea\n\n⚠️ FORM ENDING — Error\n- Mensaje: horas fuera de rango (1-24)",
+        "height": 528,
+        "width": 640,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        -80
+      ],
+      "typeVersion": 1,
+      "id": "791717a3-97e4-45b9-aadb-94b29accaca5",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "HorasLaborales1-24",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "FalsoHorasLaborales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "35a256ce-b587-41bb-871d-1ffa158e35c4",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7622ee26337aca7755637da52291f31c11d595b5b3d4235fbc106498c3d6ef0c"
+  },
+  "id": "8ntNEE0Lxzarrw3l",
+  "tags": []
+}
