@@ -1,0 +1,271 @@
+{
+  "name": "Desafio2 - Monitor Drive + Bitácora IA",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "60a1547a-060e-4deb-b853-ae7d93ac7f34",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "resource": "fileFolder",
+        "limit": 20,
+        "filter": {
+          "driveId": {
+            "__rl": true,
+            "value": "My Drive",
+            "mode": "list",
+            "cachedResultName": "My Drive",
+            "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+          },
+          "folderId": {
+            "__rl": true,
+            "value": "1xf2f9cBFv9T3Hv5-2piEtTH3D8yew-gJ",
+            "mode": "list",
+            "cachedResultName": "Reportes_IA",
+            "cachedResultUrl": "https://drive.google.com/drive/folders/1xf2f9cBFv9T3Hv5-2piEtTH3D8yew-gJ"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        224,
+        0
+      ],
+      "id": "ca775d8b-5d05-4614-ba3f-31346935db0b",
+      "name": "Search files and folders",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "rDbyw9gIZd6JHqXy",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        448,
+        0
+      ],
+      "id": "197eacd1-cf33-44e7-a201-4452a6ac2b5d",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "rDbyw9gIZd6JHqXy",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        672,
+        0
+      ],
+      "id": "feee0784-5e9f-4a94-9486-c2617e5d6f08",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Eres un Analista de Inteligencia de Negocios experto en síntesis de reportes corporativos.\n\nTAREA:\nAnaliza el siguiente texto y genera un resumen estructurado en formato JSON estricto. \nEl resumen no debe superar las 200 palabras en total.\n\nTEXTO A ANALIZAR:\n{{ $json.data }}\n\nFORMATO DE SALIDA OBLIGATORIO (responde SOLO con el JSON, sin texto adicional):\n{\n  \"titulo_ejecutivo\": \"título breve del reporte\",\n  \"hallazgo_principal\": \"el hallazgo más importante en 1 oración\",\n  \"resumen_contenido\": \"resumen del contenido en máximo 150 palabras\",\n  \"pasos_sugeridos\": [\"paso 1\", \"paso 2\", \"paso 3\"]\n}\n\nIMPORTANTE: Responde ÚNICAMENTE con el objeto JSON. \nSin backticks, sin bloques de código, sin texto adicional.",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        896,
+        0
+      ],
+      "id": "62e5b2df-c1b6-4570-af27-ff59f2845232",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-flash-lite",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        976,
+        224
+      ],
+      "id": "e7c03756-c493-41bc-afd5-55dc480b1b8f",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "p6ehcanO6NA53FI4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output;\nconst cleaned = raw.replace(/```json\\n?/g, '').replace(/```/g, '').trim();\nconst parsed = JSON.parse(cleaned);\nreturn [{ json: parsed }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        32
+      ],
+      "id": "7406acf1-27e3-4b34-a9e6-e020206b9982",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "1uPLbwxbk79xbrLlIx70OleZVss45vcD6AmhLHhBP-_Q",
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "=𝗡𝗨𝗘𝗩𝗢 𝗥𝗘𝗣𝗢𝗥𝗧𝗘\n𝗧í𝘁𝘂𝗹𝗼: {{ $json.titulo_ejecutivo }}\n\n𝗛𝗮𝗹𝗹𝗮𝘇𝗴𝗼 𝗣𝗿𝗶𝗻𝗰𝗶𝗽𝗮𝗹:\n{{ $json.hallazgo_principal }}\n\n𝗥𝗲𝘀𝘂𝗺𝗲𝗻:\n{{ $json.resumen_contenido }}\n\n𝗣𝗮𝘀𝗼𝘀 𝗦𝘂𝗴𝗲𝗿𝗶𝗱𝗼𝘀:\n▸ {{ $json.pasos_sugeridos[0] }}\n▸ {{ $json.pasos_sugeridos[1] }}\n▸ {{ $json.pasos_sugeridos[2] }}\n―――――――――――――――――――――"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        32
+      ],
+      "id": "b55d7581-524e-4cfd-b8c9-a604df55fa10",
+      "name": "Update a document",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "z0kfcKb5ljxnMiyG",
+          "name": "Google Docs account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Search files and folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search files and folders": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Update a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "3de25b97-946c-4bec-86b0-0c9eab1646e0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7622ee26337aca7755637da52291f31c11d595b5b3d4235fbc106498c3d6ef0c"
+  },
+  "id": "rLUizmwxQv1MfJ92",
+  "tags": []
+}
