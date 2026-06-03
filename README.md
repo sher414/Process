@@ -17,6 +17,24 @@ Automatizaciones low-code:
 
 ---
 
+### 📂 N8N-Automatizaciones — Flujos con n8n
+Automatizaciones e integraciones desarrolladas en n8n:
+- Pipelines de captura y procesamiento de datos (Google Forms → Sheets → Gmail)
+- Integración con IA para clasificación y respuesta automática
+- Workflows reutilizables vía importación JSON
+
+### 📂 ConfigurarLLM — Configuración de modelos de lenguaje
+Guías y notas sobre configuración y uso de LLMs aplicados a procesos.
+
+### 📂 ComoFuncionaAgenteIA — Fundamentos de Agentes IA
+Conceptos y ejemplos sobre cómo funcionan los agentes de IA aplicados a automatización.
+
+### 📊 ROI_Automatizaciones — Retorno de inversión en automatización
+Material de referencia para evaluar y presentar el ROI de proyectos de automatización y transformación digital:
+- Fórmula base y componentes del cálculo
+- 4 casos reales con métricas (Finanzas, RRHH, Logística, Manufactura)
+- Plantilla reutilizable para documentar cualquier caso de ROI
+
 ## 🛠️ Tecnologías Utilizadas
 
 - BPMN 2.0
