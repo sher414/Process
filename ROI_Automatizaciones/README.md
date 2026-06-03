@@ -191,7 +191,7 @@ Un proceso es buen candidato si cumple al menos 3 de estas condiciones:
 
 - [Configuración de LLMs](../ConfigurarLLM/README.md)
 - [Cómo funciona un Agente IA](../ComoFuncionaAgenteIA/README.md)
-- [Automatizaciones en n8n]([../N8N-Automatizaciones/N8N_PADRE_README.md)
+- [Automatizaciones en n8n](../N8N-Automatizaciones)
 
 ---
 
