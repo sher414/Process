@@ -1,0 +1,543 @@
+{
+  "name": "ClasificadorAutDeCorreosConIA_Avanzado",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -128,
+        -16
+      ],
+      "id": "b676b4e7-3dc1-4501-a8ea-be13a2e12536",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 3,
+        "simple": false,
+        "filters": {
+          "q": "=is:unread from:germanmorvillo@gmail.com"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        96,
+        -16
+      ],
+      "id": "34c8d12c-bdc4-4b66-ab3e-7224d18994f4",
+      "name": "Gmail.Correo.No.Leido",
+      "webhookId": "f9dddb32-3418-4b75-a01a-28f3537d0c2a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DgHmm1yzTbMOxlxt",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "loose",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "931ae67e-b4e6-4b3a-88b1-c7e5e6ab8204",
+              "leftValue": "={{ $('Gmail.Correo.No.Leido').item.json.text.length }}",
+              "rightValue": 50,
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "looseTypeValidation": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1216,
+        -112
+      ],
+      "id": "19aaea6e-ade0-4495-a906-54435aa3d96a",
+      "name": "Filtrar - Contenido.Minimo"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analizá el siguiente correo electrónico y respondé ÚNICAMENTE con un JSON válido, sin texto adicional, sin markdown, sin explicaciones.\n\nAsunto: {{ $('Gmail.Correo.No.Leido').item.json.subject }}\nDe: {{ $('Gmail.Correo.No.Leido').item.json.from.value[0].address }}\nContenido: {{ $('Gmail.Correo.No.Leido').item.json.text }}\n\nEl JSON debe tener exactamente estos 6 campos:\n{\n  \"tipo\": \"una de: Consulta | Solicitud | Urgente | Informativo | Spam\",\n  \"prioridad\": \"una de: Alta | Media | Baja\",\n  \"resumen\": \"resumen del correo en máximo 30 palabras\",\n  \"acciones\": \"qué debe hacerse con este correo en máximo 20 palabras\",\n  \"respuesta_sugerida\": \"borrador de respuesta en máximo 50 palabras\",\n  \"es_cliente\": true o false\n}\n\n⚠️ Importante: Si el correo no tiene contenido analizable, igual respondé ÚNICAMENTE con el JSON vacío, nunca con texto libre.",
+        "options": {
+          "systemMessage": "Sos un Analista de Comunicaciones Corporativas experto en gestión de bandeja de entrada. Tu única función es clasificar correos electrónicos y devolver exclusivamente un JSON estricto sin ningún texto adicional."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        1440,
+        -112
+      ],
+      "id": "ff9f5d96-4380-48bf-b4b1-b0b607f87e92",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// =============================================\n// NODO: ParsearRespuestaIA\n// WORKFLOW: Etapa3_ClasificadorAvanzado\n// PROPÓSITO: Extraer y estructurar el JSON\n//            devuelto por Gemini para guardarlo\n//            en Google Sheets\n// =============================================\n\n// Obtenemos los datos de los nodos anteriores\nconst nodoAI = $('AI Agent').item.json;\nconst emailData = $('Gmail.Correo.No.Leido').item.json;\nconst hashData = $('Generar Hash').item.json;\n\n// Limpieza del output de Gemini\n// A veces devuelve markdown o comillas extras\nlet outputString = nodoAI.output || '';\noutputString = outputString\n  .replace(/```json|```/g, '')   // elimina bloques markdown\n  .replace(/^[\"']+|[\"']+$/g, '') // elimina comillas al inicio/fin\n  .trim();                        // elimina espacios en blanco\n\n// Buscamos el bloque JSON { ... } dentro del string\n// Usamos regex para extraer solo el objeto JSON\nconst match = outputString.match(/\\{[\\s\\S]*\\}/);\n\n// Si encontramos JSON lo parseamos, sino usamos objeto vacío\nconst parsed = match ? JSON.parse(match[0]) : {};\n\n// Retornamos el objeto estructurado con todos los campos\n// que vamos a guardar en la Sheet Etapa3_Emails\nreturn [{\n  json: {\n    email_hash: hashData.email_hash,          // huella única del email\n    timestamp: new Date().toLocaleString('es-AR', {\n      timeZone: 'America/Argentina/Buenos_Aires'\n    }),                                        // fecha/hora en Argentina\n    from: emailData.from?.value?.[0]?.address || '',  // remitente\n    subject: emailData.subject || '',          // asunto original\n    body_preview: (emailData.text || '').substring(0, 100), // primeros 100 chars\n    tipo: parsed.tipo || '',                   // clasificación del email\n    resumen: parsed.resumen || '',             // resumen generado por IA\n    acciones: parsed.acciones || '',           // acciones recomendadas\n    respuesta_sugerida: parsed.respuesta_sugerida || '', // borrador de respuesta\n    notificado: false,                         // flag para el paso de notificación\n    log: 'procesado_ok'                        // registro de estado\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        -112
+      ],
+      "id": "82ac9521-4780-4c4e-9e6a-cbe57e882f43",
+      "name": "ParsearRespuestaIA"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1IRBxFZSo-QIA4fwXX7_rVLb9pc2570iSXVJ_iCst8OI",
+          "mode": "list",
+          "cachedResultName": "Etapa3_Emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IRBxFZSo-QIA4fwXX7_rVLb9pc2570iSXVJ_iCst8OI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IRBxFZSo-QIA4fwXX7_rVLb9pc2570iSXVJ_iCst8OI/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "email_hash": "={{ $json.email_hash }}",
+            "timestamp": "={{ $json.timestamp }}",
+            "from": "={{ $json.from }}",
+            "subject": "={{ $json.subject }}",
+            "body_preview": "={{ $json.body_preview }}",
+            "tipo": "={{ $json.tipo }}",
+            "resumen": "={{ $json.resumen }}",
+            "acciones": "={{ $json.acciones }}",
+            "respuesta_sugerida": "={{ $json.respuesta_sugerida }}",
+            "notificado": "={{ $json.notificado }}",
+            "log": "={{ $json.log }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "email_hash",
+              "displayName": "email_hash",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "timestamp",
+              "displayName": "timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "from",
+              "displayName": "from",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "displayName": "subject",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "body_preview",
+              "displayName": "body_preview",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tipo",
+              "displayName": "tipo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resumen",
+              "displayName": "resumen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "acciones",
+              "displayName": "acciones",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "respuesta_sugerida",
+              "displayName": "respuesta_sugerida",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notificado",
+              "displayName": "notificado",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "log",
+              "displayName": "log",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2016,
+        -112
+      ],
+      "id": "5162e1ec-d7f7-4fa2-a137-4e68ba39e2f3",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtenemos el ID único del email desde Gmail\n// Si 'id' no existe, usamos 'threadId' como fallback\nconst emailId = $json.id || $json.threadId || '';\n\n// Función hash simple sin módulos externos\n// Convierte el emailId en un número único reproducible\nfunction simpleHash(str) {\n  let hash = 0;\n  for (let i = 0; i < str.length; i++) {\n    const char = str.charCodeAt(i);\n    hash = ((hash << 5) - hash) + char;\n    hash = hash & hash; // Convierte a 32 bits\n  }\n  // Convertimos a hexadecimal y aseguramos que sea positivo\n  return Math.abs(hash).toString(16);\n}\n\nconst hash = simpleHash(emailId);\n\n// Retornamos todos los campos originales del email\n// más el campo nuevo email_hash\nreturn [{\n  json: {\n    ...$json,\n    email_hash: hash\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        -16
+      ],
+      "id": "754fa5e5-d1e2-4f4f-a0f4-bf02f342a854",
+      "name": "Generar Hash"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1IRBxFZSo-QIA4fwXX7_rVLb9pc2570iSXVJ_iCst8OI",
+          "mode": "list",
+          "cachedResultName": "Etapa3_Emails",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IRBxFZSo-QIA4fwXX7_rVLb9pc2570iSXVJ_iCst8OI/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IRBxFZSo-QIA4fwXX7_rVLb9pc2570iSXVJ_iCst8OI/edit#gid=0"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "email_hash",
+              "lookupValue": "={{ $json.email_hash }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        768,
+        -16
+      ],
+      "id": "a8780cb2-be88-4abe-b7ae-74ee85520bae",
+      "name": "Verificar Idempotencia",
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WMux4BMLhFV7qENL",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "8cf37d1c-1da9-42be-b68e-48543288bb2c",
+              "leftValue": "={{ $('Generar Hash').item.json.email_hash }}",
+              "rightValue": "={{ $json.email_hash ?? 'NO_EXISTE' }}",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        992,
+        -16
+      ],
+      "id": "4fe0e17f-68f9-469b-aec6-7d27a8f0ee42",
+      "name": "¿Ya Procesado?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        80
+      ],
+      "id": "86d4fdcd-eeb1-4793-98b0-277695b52dfe",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        1512,
+        112
+      ],
+      "id": "d7d62d69-4ae4-4b29-b979-bfc041fc0e6e",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "p6ehcanO6NA53FI4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        544,
+        -16
+      ],
+      "id": "b82f6377-e928-46d2-b1fe-d4b1d54c792c",
+      "name": "Rate Limit (1s)",
+      "webhookId": "c5c5eda0-4fcf-4ff8-8710-21b6bf229f0b"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Gmail.Correo.No.Leido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail.Correo.No.Leido": {
+      "main": [
+        [
+          {
+            "node": "Generar Hash",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrar - Contenido.Minimo": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "ParsearRespuestaIA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ParsearRespuestaIA": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generar Hash": {
+      "main": [
+        [
+          {
+            "node": "Rate Limit (1s)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verificar Idempotencia": {
+      "main": [
+        [
+          {
+            "node": "¿Ya Procesado?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "¿Ya Procesado?": {
+      "main": [
+        [
+          {
+            "node": "Filtrar - Contenido.Minimo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rate Limit (1s)": {
+      "main": [
+        [
+          {
+            "node": "Verificar Idempotencia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "timezone": "America/Argentina/Buenos_Aires",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "4ec288b3-7b6d-461f-8da1-e9a9b644c672",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7622ee26337aca7755637da52291f31c11d595b5b3d4235fbc106498c3d6ef0c"
+  },
+  "id": "iCC2XiEegNdpXLAT",
+  "tags": [
+    {
+      "updatedAt": "2026-05-22T19:29:09.732Z",
+      "createdAt": "2026-05-22T19:29:09.732Z",
+      "id": "I19ctrZVUtrXaLB4",
+      "name": "german-morvillo"
+    }
+  ]
+}
