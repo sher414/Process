@@ -1,0 +1,187 @@
+{
+  "name": "Desafio2_TareasPostReunion_Trello",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "73cc2f2c-4b2f-4f41-aee6-f9af8ecdb2d4",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Sos un asistente que extrae tareas (action items) de transcripciones de reuniones.\n\nFECHA DE HOY: {{ $now.format('yyyy-MM-dd') }}\n\nAnalizá la siguiente transcripción y extraé ÚNICAMENTE las tareas accionables asignadas a una persona. Ignorá las descripciones de contexto, estado actual (AS-IS) o definiciones que no sean tareas asignadas a alguien.\n\nPara cada tarea devolvé:\n- \"tarea\": descripción clara y concisa de qué hay que hacer\n- \"responsable\": nombre de la persona asignada\n- \"fecha_limite\": la fecha en formato ISO 8601 (yyyy-MM-dd), calculada a partir de la FECHA DE HOY. Si no hay fecha definida, devolvé null.\n\nDevolvé EXCLUSIVAMENTE un array JSON válido, sin texto adicional, sin explicaciones y sin bloques de código markdown.\n\nTranscripción:\n{{ $json.Transcripcion }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        448,
+        0
+      ],
+      "id": "580c81aa-3cb9-4bdb-8be7-c099b3fa3d73",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        528,
+        224
+      ],
+      "id": "2dc4349a-4fb2-4075-bf2a-276660ef4b22",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "p6ehcanO6NA53FI4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e12d4257-9991-48fa-82f9-d1748d795a68",
+              "name": "Transcripcion",
+              "value": "Reunión de relevamiento — Proyecto Automatización Cuentas por Pagar (AP)\nFecha: lunes 8 de junio · Participantes: Germán (analista de procesos), Carolina (Finanzas), Martín (IT), Sofía (Compras)\nArrancamos repasando el estado actual (AS-IS) del circuito de facturas de proveedores. Hoy Carolina recibe las facturas por mail y las carga a mano en el ERP, lo que le lleva unas 3 horas diarias y genera errores de tipeo.\nDefinimos el TO-BE: queremos que las facturas entrantes se lean automáticamente y se precarguen en el ERP con validación humana solo para excepciones.\nQuedaron estas definiciones de la reunión. Germán va a documentar el diagrama TO-BE en BPMN y compartirlo antes del jueves. Martín tiene que relevar qué endpoints expone la API del ERP para la carga de facturas; quedó en tenerlo para la semana que viene. \nCarolina se comprometió a juntar 20 facturas reales de muestra para entrenar el extractor de datos, las manda mañana a primera hora. Sofía va a validar con el área legal si podemos procesar los datos de proveedores con IA, sin fecha definida todavía pero es bloqueante. \nPor último, acordamos que Germán arme el análisis de ROI preliminar para la próxima reunión de comité.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        224,
+        0
+      ],
+      "id": "e886cdeb-5822-4702-acb1-da59fce1da4f",
+      "name": "Transcripcion"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Tomamos el texto crudo que devolvió el LLM\nlet raw = $input.first().json.text;\n\n// Defensivo: si el LLM envolvió el JSON en ```json ... ```, lo limpiamos\n// Buscamos desde el primer [ hasta el último ]\nconst match = raw.match(/\\[[\\s\\S]*\\]/);\nif (match) {\n  raw = match[0];\n}\n\n// Convertimos el string en un array real de objetos\nconst tareas = JSON.parse(raw);\n\n// Devolvemos cada tarea como un ítem separado de n8n\nreturn tareas.map(t => ({ json: t }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        800,
+        0
+      ],
+      "id": "1fe745d8-92b0-4d49-9f6b-e5691b23e142",
+      "name": "OutputJsonParseado"
+    },
+    {
+      "parameters": {
+        "listId": "6a272702879273a54ef5dbd6",
+        "name": "={{ $json.tarea }}",
+        "description": "=Responsable: {{ $json.responsable }}",
+        "additionalFields": {
+          "due": "={{ $json.fecha_limite }}"
+        }
+      },
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        0
+      ],
+      "id": "a22ab774-b95d-499f-b538-a5007ca1af08",
+      "name": "Create a card",
+      "credentials": {
+        "trelloApi": {
+          "id": "56rcrnTjMHmnIFV4",
+          "name": "Trello account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Transcripcion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcripcion": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "OutputJsonParseado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OutputJsonParseado": {
+      "main": [
+        [
+          {
+            "node": "Create a card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "3566d21d-b5e0-47cc-8c01-5539b75a7f1c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7622ee26337aca7755637da52291f31c11d595b5b3d4235fbc106498c3d6ef0c"
+  },
+  "id": "WtDIeEuTqyAm2TOW",
+  "tags": [
+    {
+      "updatedAt": "2026-05-22T19:29:09.732Z",
+      "createdAt": "2026-05-22T19:29:09.732Z",
+      "id": "I19ctrZVUtrXaLB4",
+      "name": "german-morvillo"
+    }
+  ]
+}

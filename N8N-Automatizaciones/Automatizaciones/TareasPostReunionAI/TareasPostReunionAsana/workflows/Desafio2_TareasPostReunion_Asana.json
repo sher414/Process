@@ -1,0 +1,187 @@
+{
+  "name": "Desafio2_TareasPostReunion_Asana",
+  "nodes": [
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Sos un asistente que extrae tareas (action items) de transcripciones de reuniones.\n\nFECHA DE HOY: {{ $now.format('yyyy-MM-dd') }}\n\nAnalizá la siguiente transcripción y extraé ÚNICAMENTE las tareas accionables asignadas a una persona. Ignorá las descripciones de contexto, estado actual (AS-IS) o definiciones que no sean tareas asignadas a alguien.\n\nPara cada tarea devolvé:\n- \"tarea\": descripción clara y concisa de qué hay que hacer\n- \"responsable\": nombre de la persona asignada\n- \"fecha_limite\": la fecha en formato ISO 8601 (yyyy-MM-dd), calculada a partir de la FECHA DE HOY. Si no hay fecha definida, devolvé null.\n- \"estado\": el estado de avance de la tarea, inferido del lenguaje usado. Devolvé EXACTAMENTE uno de estos tres valores:\n  * \"To Do\" → si la tarea no empezó (lenguaje en futuro o \"todavía no\", \"aún no\", \"tiene que\", \"va a\").\n  * \"Doing\" → si está en curso (lenguaje en presente o \"está haciendo\", \"va por la mitad\", \"arrancó\", \"lo está terminando\").\n  * \"Done\" → si ya se completó (lenguaje en pasado o \"ya terminó\", \"entregó\", \"quedó cerrada\").\n\nDevolvé EXCLUSIVAMENTE un array JSON válido, sin texto adicional, sin explicaciones y sin bloques de código markdown.\n\nTranscripción:\n{{ $json[\"Transcripcion \"] }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.9,
+      "position": [
+        256,
+        0
+      ],
+      "id": "b3b3b1b2-d385-449e-8d82-c4ba4d0bedc0",
+      "name": "Basic LLM Chain"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1.1,
+      "position": [
+        256,
+        224
+      ],
+      "id": "ea941554-65c5-44c0-b50c-92731d5d0522",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "p6ehcanO6NA53FI4",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $input.first().json.text;\n\n// Defensivo: limpia markdown si la IA lo envolvió en ```json ... ```\nconst match = raw.match(/\\[[\\s\\S]*\\]/);\nif (match) {\n  raw = match[0];\n}\n\nconst tareas = JSON.parse(raw);\n\n// Cada tarea como ítem separado de n8n (fan-out)\nreturn tareas.map(t => ({ json: t }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        608,
+        0
+      ],
+      "id": "405ff72a-5ff8-4971-8f3e-86c88ed19467",
+      "name": "OutputJsonParseado"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "documentId": {
+          "__rl": true,
+          "value": "1n9SZaRYotfD805CFF9mZLs6enzwCa0cF6293SZ-Kda0",
+          "mode": "list",
+          "cachedResultName": "Respuestas_Transcripciones",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1n9SZaRYotfD805CFF9mZLs6enzwCa0cF6293SZ-Kda0/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1892592376,
+          "mode": "list",
+          "cachedResultName": "Respuestas de formulario 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1n9SZaRYotfD805CFF9mZLs6enzwCa0cF6293SZ-Kda0/edit#gid=1892592376"
+        },
+        "event": "rowAdded",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "1ffdc919-8f3d-4608-bcbf-ec55f357152a",
+      "name": "Google Sheets Trigger",
+      "credentials": {
+        "googleSheetsTriggerOAuth2Api": {
+          "id": "W25tELVEkxsPyVzk",
+          "name": "Google Sheets Trigger account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workspace": "1215561252875624",
+        "name": "={{ $json.tarea }}",
+        "otherProperties": {
+          "due_on": "={{ $json.fecha_limite }}",
+          "notes": "=Responsable: {{ $json.responsable }}\n  Estado: {{ $json.estado }}",
+          "projects": [
+            "1215565852560972"
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.asana",
+      "typeVersion": 1,
+      "position": [
+        816,
+        0
+      ],
+      "id": "e5e9eb2f-61b3-494d-a2ff-cdd441ca72d4",
+      "name": "Create a task",
+      "credentials": {
+        "asanaApi": {
+          "id": "3q3turxcfjgYYOuV",
+          "name": "Asana account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "OutputJsonParseado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OutputJsonParseado": {
+      "main": [
+        [
+          {
+            "node": "Create a task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "3e571816-5ef0-4914-b61b-73f7fac27202",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7622ee26337aca7755637da52291f31c11d595b5b3d4235fbc106498c3d6ef0c"
+  },
+  "id": "kGqAKOjoveNIiz4u",
+  "tags": [
+    {
+      "updatedAt": "2026-05-22T19:29:09.732Z",
+      "createdAt": "2026-05-22T19:29:09.732Z",
+      "id": "I19ctrZVUtrXaLB4",
+      "name": "german-morvillo"
+    }
+  ]
+}
