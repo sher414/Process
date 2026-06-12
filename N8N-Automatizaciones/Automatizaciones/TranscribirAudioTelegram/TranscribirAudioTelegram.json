@@ -1,0 +1,845 @@
+{
+  "name": "TranscribirAudioTelegram",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0ef85eae-141f-451a-b2dc-6c3ed6be6f1d",
+      "name": "Telegram Trigger",
+      "webhookId": "e50fac98-45ea-4a7c-8a3d-1fb446dc2227",
+      "credentials": {
+        "telegramApi": {
+          "id": "1k866g8cavcLTZlF",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        976,
+        224
+      ],
+      "id": "1a20a3ed-a6ed-4cf2-8175-8aa2f2d4bd71",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "L6V515BGM9avJXPS",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// n8n Code node (JavaScript)\nconst inputs = $input.all();\n\nreturn inputs.map(entry => {\n  // Capturamos el contenido bruto del nodo anterior\n  let rawContent = entry.json.output || \"\";\n\n  // Normalización: forzar que el contenido sea tratado como cadena de texto\n  if (typeof rawContent !== \"string\") {\n    rawContent = JSON.stringify(rawContent);\n  }\n\n  let finalString = rawContent;\n\n  // Localizar bloques de código markdown (```json o ```)\n  const codeBlockRegex = /```(?:json)?\\s*([\\s\\S]*?)```/;\n  const matchBlock = rawContent.match(codeBlockRegex);\n\n  if (matchBlock && matchBlock[1]) {\n    finalString = matchBlock[1].trim();\n  }\n\n  // Intentar la conversión a objeto\n  let parsedResult = {};\n  try {\n    parsedResult = JSON.parse(finalString);\n  } catch (err) {\n    // Si falla, buscamos la estructura de llaves { ... } más externa\n    const curlyBracesRegex = /\\{[\\s\\S]+\\}/;\n    const fallbackMatch = finalString.match(curlyBracesRegex);\n    if (fallbackMatch) {\n      try {\n        parsedResult = JSON.parse(fallbackMatch[0]);\n      } catch (parseError) {\n        // Si sigue fallando, parsedResult queda vacío\n      }\n    }\n  }\n\n  // Combinación y mapeo de campos al esquema final\n  return {\n    json: {\n      ...entry.json,\n      contratante_nombre: parsedResult.contratante_nombre ?? null,\n      contratante_id: parsedResult.contratante_id ?? null,\n      contratista_nombre: parsedResult.contratista_nombre ?? null,\n      contratista_id: parsedResult.contratista_id ?? null,\n      servicio_descripcion: parsedResult.servicio_descripcion ?? null,\n      plazo_inicio: parsedResult.plazo_inicio ?? null,\n      plazo_fin: parsedResult.plazo_fin ?? null,\n      duracion_meses: parsedResult.duracion_meses ?? null,\n      duracion_dias: parsedResult.duracion_dias ?? null,\n      precio_monto: parsedResult.precio_monto ?? null,\n      precio_moneda: parsedResult.precio_moneda ?? null,\n      ciudad: parsedResult.ciudad ?? null,\n      pais: parsedResult.pais ?? null,\n      texto_usuario: entry.json.texto_usuario ?? null,\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1248,
+        0
+      ],
+      "id": "5d92e848-8008-4acb-8247-1f813b112ecb",
+      "name": "parsear.codigo"
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        0
+      ],
+      "id": "c25240d6-92ce-4b83-9db4-8b484f08cb1b",
+      "name": "get.voice.file.id",
+      "webhookId": "13cdf8ca-35d5-4fa9-8610-998fbe900520",
+      "credentials": {
+        "telegramApi": {
+          "id": "1k866g8cavcLTZlF",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Analiza el contenido de {{ $json.text }} y mapea la información al siguiente esquema de salida. Tu respuesta debe ser exclusivamente el objeto JSON final.\n\nEstructura de llaves requerida:\n\n{\n\"contratante_nombre\": \"\",\n\"contratante_id\": \"\",\n\"contratista_nombre\": \"\",\n\"contratista_id\": \"\",\n\"servicio_descripcion\": \"\",\n\"plazo_inicio\": \"YYYY-MM-DD\",\n\"plazo_fin\": \"YYYY-MM-DD\",\n\"duracion_meses\": null,\n\"duracion_dias\": null,\n\"precio_monto\": null,\n\"precio_moneda\": \"\",\n\"ciudad\": \"\",\n\"pais\": \"\"\n}\n\nDirectrices de normalización:\n\nCuantificación temporal: Si se detecta una duración explícita (ej. \"nueve meses\"), asígnala como entero en duracion_meses.\n\nConversión financiera: Transforma cualquier cifra escrita en texto (ej. \"diez mil\") a su representación numérica (10000) en precio_monto.\n\nRestricción geográfica: No asumas valores para ciudad o pais mediante contexto; si no figuran explícitamente, devuelve null.",
+        "options": {
+          "systemMessage": "Actúa como un motor de procesamiento de datos. Tu salida debe limitarse exclusivamente a un objeto JSON que cumpla con el esquema definido."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        896,
+        0
+      ],
+      "id": "cc52d835-8c36-4d91-bb36-6d8b42cb1c46",
+      "name": "Extract.Info.Prompt"
+    },
+    {
+      "parameters": {
+        "jsCode": "const item = $input.first();\n// Cambiamos el fileName de la propiedad binaria 'data'\nitem.binary.data.fileName = 'audio.ogg';\nitem.binary.data.fileExtension = 'ogg';\nitem.binary.data.mimeType = 'audio/ogg';\nreturn item;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        0
+      ],
+      "id": "4fec90c4-c072-4cd9-8b94-94191dab08a3",
+      "name": "voice file.oga a file.ogg"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.groq.com/openai/v1/audio/transcriptions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "whisper-large-v3"
+            },
+            {
+              "parameterType": "formBinaryData",
+              "name": "file",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        0
+      ],
+      "id": "98fcfe98-74ca-47b4-a6c0-fc058d766593",
+      "name": "post.groq.whisper(Transcriptor)",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "BOwXuCByXi3EaSO8",
+          "name": "ApiKey_groq"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Captura de datos iniciales\nconst inputData = items[0]?.json || {};\n \n/**\n * Normaliza valores para asegurar que sean números válidos\n * Maneja separadores de miles y decimales\n */\nconst parseNumeric = (value) => {\n  if (value == null) return null;\n  if (typeof value === 'number') return value;\n \n  // Limpieza de formato: quita puntos de miles y estandariza coma decimal\n  const sanitized = String(value)\n    .replace(/[.,](?=\\d{3}(?:\\D|$))/g, '') \n    .replace(',', '.');\n \n  const result = parseFloat(sanitized);\n  return Number.isFinite(result) ? result : null;\n};\n \n// Mapeo estructurado de la información\nconst info = {\n  contratante_nombre: inputData.contratante_nombre ?? null,\n  contratante_id: inputData.contratante_id ?? null,\n  contratista_nombre: inputData.contratista_nombre ?? null,\n  contratista_id: inputData.contratista_id ?? null,\n  servicio_descripcion: inputData.servicio_descripcion ?? null,\n  plazo_inicio: inputData.plazo_inicio ?? null,\n  plazo_fin: inputData.plazo_fin ?? null,\n  duracion_meses: inputData.duracion_meses ?? null,\n  duracion_dias: inputData.duracion_dias ?? null,\n  precio_monto: parseNumeric(inputData.precio_monto),\n  precio_moneda: inputData.precio_moneda ?? null,\n  ciudad: inputData.ciudad ?? null,\n  pais: inputData.pais ?? null\n};\n \n// Auditoría de campos requeridos\nconst camposRequeridos = [\n  'contratante_nombre', 'contratante_id',\n  'contratista_nombre', 'contratista_id',\n  'servicio_descripcion', 'precio_monto', 'precio_moneda', 'pais'\n];\n \nconst errores = [];\n \n// Validación de integridad\ncamposRequeridos.forEach(campo => {\n  const valor = info[campo];\n \n  if (campo === 'precio_monto') {\n    if (typeof valor !== 'number' || !Number.isFinite(valor)) {\n      errores.push(campo);\n    }\n  } else if (!valor || (typeof valor === 'string' && !valor.trim())) {\n    errores.push(campo);\n  }\n});\n \n// Verificación lógica de temporalidad (Fin o Duración)\nconst poseeFechaFin = info.plazo_fin && String(info.plazo_fin).trim().length > 0;\nconst poseeDuracion = (Number(info.duracion_meses) > 0) || (Number(info.duracion_dias) > 0);\n \nif (!poseeFechaFin && !poseeDuracion) {\n  errores.push('plazo_fin (o duracion)');\n}\n \n// Salida compatible con el esquema original\nreturn [{\n  json: {\n    ok: errores.length === 0,\n    faltantes: errores,\n    datos: info\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1456,
+        0
+      ],
+      "id": "2d284018-5a33-4144-bf29-c4401836c4d8",
+      "name": "validardatos"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "216dbed2-8a41-42df-854f-ed5da2bdc439",
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": false,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1664,
+        0
+      ],
+      "id": "b184ddb4-1ce8-484e-b05b-4ce95d740138",
+      "name": "if.con/sin.datos"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.mensaje }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2080,
+        208
+      ],
+      "id": "b39a4924-2000-45be-8bc7-6033e92cedac",
+      "name": "return.msg.telegram",
+      "webhookId": "dda6e18b-8265-4e5d-bdfe-0d0780e72741",
+      "credentials": {
+        "telegramApi": {
+          "id": "1k866g8cavcLTZlF",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const data = items[0].json;\nconst faltantes = data.faltantes || [];\n \nconst nombres = {\n  contratante_nombre: '👤 Nombre del contratante',\n  contratante_id: '🆔 ID/CUIT del contratante',\n  contratista_nombre: '👤 Nombre del contratista',\n  contratista_id: '🆔 ID/CUIT del contratista',\n  servicio_descripcion: '📋 Descripción del servicio',\n  precio_monto: '💰 Monto del precio',\n  precio_moneda: '💱 Moneda',\n  pais: '🌍 País',\n  'plazo_fin (o duracion)': '📅 Fecha de fin o duración del contrato'\n};\n \nconst lista = faltantes.map(f => nombres[f] || f).join('\\n');\n \nconst mensaje = `⚠️ *Datos incompletos para generar el contrato*\\n\\nPor favor, enviá otro audio incluyendo la siguiente información que falta:\\n\\n${lista}\\n\\n🎙️ _Grabá un nuevo audio con todos los datos y lo vuelvo a procesar._`;\n \nreturn [{ json: { mensaje } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1872,
+        208
+      ],
+      "id": "e845f479-21df-4ff5-9bc0-1d6315e4bc0c",
+      "name": "msg.datos.faltantes"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtener la fuente de datos (priorizando el nodo previo o el objeto anidado)\nconst source = items[0].json.datos || items[0].json;\n \n/**\n * Formatea un objeto Date a string YYYY-MM-DD\n */\nconst toIsoDate = (dateObj) => dateObj.toISOString().split('T')[0];\n \n/**\n * Lógica para desplazar fechas conservando integridad de días\n */\nconst shiftDate = (baseDate, m, d) => {\n  const result = new Date(baseDate.getTime());\n \n  if (m > 0) {\n    const targetMonth = result.getMonth() + m;\n    result.setMonth(targetMonth);\n    // Ajuste de desbordamiento (ej: 31 de enero + 1 mes -> 28 de febrero)\n    if (result.getMonth() > (targetMonth % 12)) result.setDate(0);\n  }\n \n  if (d > 0) result.setDate(result.getDate() + d);\n \n  return result;\n};\n \n// Inicialización de puntos temporales\nconst dateStart = source.plazo_inicio ? new Date(source.plazo_inicio) : new Date();\nlet dateEnd = source.plazo_fin ? new Date(source.plazo_fin) : null;\n \nconst countMonths = parseInt(source.duracion_meses || 0);\nconst countDays = parseInt(source.duracion_dias || 0);\n \n// Cálculo proyectado si la fecha de finalización está ausente\nif (!dateEnd && (countMonths > 0 || countDays > 0)) {\n  dateEnd = shiftDate(dateStart, countMonths, countDays);\n}\n \n// Generación de descripción textual de la vigencia\nlet labelDuration = \"\";\nif (countMonths > 0) {\n  labelDuration = `${countMonths} meses`;\n} else if (countDays > 0) {\n  labelDuration = `${countDays} días`;\n}\n \nreturn [{\n  json: {\n    ...source,\n    plazo_inicio: toIsoDate(dateStart),\n    plazo_fin: toIsoDate(dateEnd || dateStart),\n    duracion_texto: labelDuration\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1888,
+        0
+      ],
+      "id": "fdd9878d-34bc-442d-8377-7cd3a94f99b2",
+      "name": "msg.datos.completo"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "22e1133f-11f6-492e-a37b-d4d42c298c2c",
+              "name": "normativas",
+              "value": "[\n  {\n    \"country\": \"Argentina\",\n    \"topic\": \"proteccion_datos\",\n    \"law_name\": \"Ley 25.326 (Protección de Datos Personales)\",\n    \"summary\": \"Regula el tratamiento de datos personales en archivos, registros o bases de datos para garantizar el derecho al honor y la intimidad. Exige la inscripción de bases de datos ante la AAIP y el consentimiento informado del titular.\",\n    \"sources\": [\n      \"https://servicios.infoleg.gob.ar/infolegInternet/anexos/60000-64999/64790/norma.htm\"\n    ],\n    \"status\": \"vigente\"\n  },\n  {\n    \"country\": \"Argentina\",\n    \"topic\": \"firma_electronica\",\n    \"law_name\": \"Ley 25.506 (Ley de Firma Digital)\",\n    \"summary\": \"Reconoce y establece el valor jurídico de la firma electrónica y la firma digital. Establece que la firma digital posee la misma validez que la firma manuscrita, otorgando presunción de autoría e integridad.\",\n    \"sources\": [\n      \"https://servicios.infoleg.gob.ar/infolegInternet/anexos/70000-74999/70749/norma.htm\"\n    ],\n    \"status\": \"vigente\"\n  },\n  {\n    \"country\": \"Argentina\",\n    \"topic\": \"contratacion_civil\",\n    \"law_name\": \"Código Civil y Comercial de la Nación (Libro Tercero, Título IV)\",\n    \"summary\": \"Regula los contratos de servicios. Establece la libertad de formas, la autonomía de la voluntad de las partes y las obligaciones del prestador y del comitente en el marco de una relación civil o comercial.\",\n    \"sources\": [\n      \"https://servicios.infoleg.gob.ar/infolegInternet/anexos/235000-239999/235975/norma.htm\"\n    ],\n    \"status\": \"vigente\"\n  },\n  {\n    \"country\": \"Argentina\",\n    \"topic\": \"impuestos\",\n    \"law_name\": \"Régimen Tributario (AFIP - Monotributo o Régimen General)\",\n    \"summary\": \"Los servicios están sujetos a retenciones de Impuesto a las Ganancias e IVA según la condición frente al impuesto del contratista. Los trabajadores independientes suelen encuadrarse en el Monotributo (Ley 24.977) para simplificar cargas.\",\n    \"sources\": [\n      \"https://www.afip.gob.ar/monotributo/ley.asp\"\n    ],\n    \"status\": \"vigente\"\n  },\n  {\n    \"country\": \"Argentina\",\n    \"topic\": \"jurisdiccion\",\n    \"law_name\": \"Código Procesal Civil y Comercial de la Nación\",\n    \"summary\": \"Regula la competencia de los tribunales. En contratos comerciales, permite la prórroga de jurisdicción, facultando a las partes a elegir los tribunales de una jurisdicción específica (ej. CABA) para resolver conflictos.\",\n    \"sources\": [\n      \"https://servicios.infoleg.gob.ar/infolegInternet/anexos/15000-19999/16547/texact.htm\"\n    ],\n    \"status\": \"vigente\"\n  },\n  {\n    \"country\": \"Argentina\",\n    \"topic\": \"independencia_laboral\",\n    \"law_name\": \"Ley 20.744 de Contrato de Trabajo (Art. 2) y Fallos Plenarios\",\n    \"summary\": \"Diferencia la locación de servicios de la relación de dependencia. El contratista debe mantener autonomía técnica, económica y jurídica. La jurisprudencia argentina utiliza el 'principio de primacía de la realidad' para evitar el fraude laboral.\",\n    \"sources\": [\n      \"https://servicios.infoleg.gob.ar/infolegInternet/anexos/25000-29999/25552/texact.htm\"\n    ],\n    \"status\": \"vigente\"\n  }\n]",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2096,
+        -96
+      ],
+      "id": "80d0477e-fbf9-4e01-bd60-665fe51a24c2",
+      "name": "Normas Argentinas"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        2304,
+        0
+      ],
+      "id": "ae0eb704-f5d1-4d2c-93d3-ad2536f1eb2f",
+      "name": "Combina.2.Nodos"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Obtención de las regulaciones desde el nodo anterior\nlet regulaciones = $json.normativas;\n \n// Si vino como texto, lo convertimos a array\nif (typeof regulaciones === 'string') {\n  regulaciones = JSON.parse(regulaciones);\n}\n \n// Construcción del bloque de texto para la base legal\nconst bloqueNormativo = regulaciones.map((reg) => {\n  return `• *${reg.law_name}* — ${reg.topic.toUpperCase()}: ${reg.summary}\\n🔗 [Referencia Legal](${reg.sources[0]})`;\n}).join(\"\\n\\n\");\n \n// Redacción de la sección de validez digital según leyes argentinas\nconst textoFirmaArgentina = `✍️ *Validez de la Firma Digital y Electrónica*\\n\\nConforme a lo establecido en la *Ley 25.506 de Firma Digital* de la República Argentina, las partes declaran que el presente documento firmado mediante medios electrónicos goza de plena eficacia jurídica, integridad y autoría. El consentimiento expresado digitalmente es equivalente a la firma manuscrita según los términos de la normativa vigente.`;\n \nreturn [\n  {\n    json: {\n      ...$json,\n      clausula_legal: `📘 *Marco Jurídico de Referencia*\\n\\n${bloqueNormativo}`,\n      clausula_firma: textoFirmaArgentina,\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2512,
+        0
+      ],
+      "id": "15aa66f0-b344-4fa0-bc29-2c9f4218a94a",
+      "name": "Armado Clausulas"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "84bbc6c2-fcd6-4342-a2e4-f394b2e8acf1",
+              "name": "contratante_nombre",
+              "value": "={{ $json.contratante_nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "d0c6415f-de5b-4860-936d-737e88a8ca45",
+              "name": "contratante_id",
+              "value": "={{ $json.contratante_id }}",
+              "type": "string"
+            },
+            {
+              "id": "0da18870-ec45-4329-8632-e9a6652059da",
+              "name": "contratista_nombre",
+              "value": "={{ $json.contratista_nombre }}",
+              "type": "string"
+            },
+            {
+              "id": "d81255bf-3372-49fa-9561-07fc36a8245d",
+              "name": "contratista_id",
+              "value": "={{ $json.contratista_id }}",
+              "type": "string"
+            },
+            {
+              "id": "264de879-d2b8-426d-8968-b992404c284b",
+              "name": "servicio_descripcion",
+              "value": "={{ $json.servicio_descripcion }}",
+              "type": "string"
+            },
+            {
+              "id": "06310161-c215-449a-9e23-89f17c508c58",
+              "name": "plazo_inicio",
+              "value": "={{ $json.plazo_inicio }}",
+              "type": "string"
+            },
+            {
+              "id": "50a0cc4f-b814-4edb-8eac-d656a3e88e8d",
+              "name": "plazo_fin",
+              "value": "={{ $json.plazo_fin }}",
+              "type": "string"
+            },
+            {
+              "id": "d2750439-1c68-4fa1-abef-7e8bda995255",
+              "name": "duracion_meses",
+              "value": "={{ $json.duracion_meses }}",
+              "type": "number"
+            },
+            {
+              "id": "5ff98813-faf3-4671-8c36-f75aa971ef83",
+              "name": "",
+              "value": "",
+              "type": "string"
+            },
+            {
+              "id": "e76302c5-742c-43e9-afc3-11b3954808b4",
+              "name": "precio_monto",
+              "value": "={{ $json.precio_monto }}",
+              "type": "number"
+            },
+            {
+              "id": "1f86c1df-d668-4acc-a088-5a437f2541f6",
+              "name": "precio_moneda",
+              "value": "={{ $json.precio_moneda }}",
+              "type": "string"
+            },
+            {
+              "id": "1652dcc8-b0d2-4eca-bd87-8a842300af1a",
+              "name": "ciudad",
+              "value": "={{ $json.ciudad }}",
+              "type": "string"
+            },
+            {
+              "id": "4c01f017-bf08-4429-b150-7117d4680012",
+              "name": "pais",
+              "value": "={{ $json.pais }}",
+              "type": "string"
+            },
+            {
+              "id": "7496b786-4d77-4768-a44f-276eae380650",
+              "name": "clausula_legal",
+              "value": "={{ $json.clausula_legal }}",
+              "type": "string"
+            },
+            {
+              "id": "5f22ebf3-ccd6-4794-8365-1ee9f3e3631f",
+              "name": "clausula_firma",
+              "value": "={{ $json.clausula_firma }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2688,
+        0
+      ],
+      "id": "07d5dbad-b4fe-4fbb-b5c1-125deac9d367",
+      "name": "Edit Fields1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Actúa como un experto en redacción de instrumentos jurídicos. Tu objetivo es generar un Documento de Prestación de Servicios en formato HTML, utilizando un lenguaje técnico-legal riguroso.\n \nEl documento debe integrarse de forma coherente siguiendo este orden jerárquico:\n \nEncabezamiento y Exordio: Título formal y declaración inicial.\n \nComparecencia: Individualización precisa de los intervinientes.\n \nNaturaleza del Encargo: Definición clara del objeto contractual.\n \nVigencia Temporal: Estipulación de plazos, fechas de inicio y término.\n \nContraprestación Económica: Montos, moneda y protocolos de desembolso.\n \nCargas y Compromisos: Detalle de las responsabilidades recíprocas.\n \nPrivacidad y Datos: Cláusula de confidencialidad y tratamiento de información personal.\n \nFundamentación Normativa: Enumeración de las leyes y decretos que rigen el acuerdo.\n \nProtocolo de Validación Digital: Apartado sobre la eficacia de la firma electrónica.\n \nSuscripción: Espacio para lugar, fecha y rúbricas.\n \nFuente de información (Input): Utiliza exclusivamente las variables contenidas en el siguiente objeto para completar los campos: {{ JSON.stringify($json, null, 2) }}\n \nRequerimiento Técnico: La salida debe ser código HTML limpio, sin comentarios adicionales, listo para ser renderizado.",
+        "options": {
+          "systemMessage": "Actúa como un Abogado Senior, con especialización académica y práctica en las esferas del Derecho Civil, Comercial y las nuevas vertientes del Derecho Tecnológico. \n \nTu competencia principal es la arquitectura de contratos de locación de servicios bajo estándares de rigor legal absoluto. Tus capacidades clave incluyen: Redacción Técnica: Dominio de una prosa jurídica pulcra, evitando ambigüedades y asegurando la protección de los intereses de ambas partes. \n \nAdaptación Normativa: Integración orgánica de la legislación vigente y las cláusulas de validez para rúbricas en entornos digitales (Firma Electrónica/Digital). \n \nEstructuración Estética: Capacidad para procesar la información y entregarla en un formato HTML estructurado, limpio y profesional. \n \nTu meta es producir instrumentos jurídicos que sean plenamente ejecutables, respetando las disposiciones locales y proporcionando una estructura documental impecable."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        2896,
+        -144
+      ],
+      "id": "2b56f539-1d21-4968-ac35-3e52daa17980",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        2768,
+        208
+      ],
+      "id": "76cf683b-8897-47fd-b511-e90e831a2933",
+      "name": "Groq Chat Model1",
+      "credentials": {
+        "groqApi": {
+          "id": "L6V515BGM9avJXPS",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        3216,
+        32
+      ],
+      "id": "1fc88ad0-6c33-4499-89e3-9336583061a4",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "html": "<!DOCTYPE html>\n<html lang=\"es\">\n<head>\n<meta charset=\"UTF-8\" />\n<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\" />\n<title>Acuerdo de Servicios - CodificAr Dev</title>\n<style>\n  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Space+Mono:wght@400;700&display=swap');\n \n  * { margin:0; padding:0; box-sizing:border-box; }\n \n  body { \n    font-family:'Inter', sans-serif; \n    font-size:11px; \n    color:#2d3436; \n    line-height:1.6; \n    background:#f1f2f6;\n    padding: 40px 0;\n  }\n \n  .contract-wrapper { \n    max-width:210mm; \n    margin:0 auto; \n    background:#ffffff; \n    padding: 25mm 20mm;\n    box-shadow: 0 10px 30px rgba(0,0,0,0.05);\n    border-top: 8px solid #000000;\n  }\n \n  .header-grid {\n    display: grid;\n    grid-template-columns: 1fr auto;\n    border-bottom: 1px solid #e1e4e8;\n    padding-bottom: 30px;\n    margin-bottom: 40px;\n  }\n \n  .brand-identity h1 {\n    font-size: 24px;\n    font-weight: 800;\n    letter-spacing: -1px;\n    color: #000;\n    text-transform: uppercase;\n  }\n \n  .brand-identity p {\n    font-size: 10px;\n    color: #636e72;\n    letter-spacing: 2px;\n    font-weight: 600;\n  }\n \n  .contract-id-box {\n    text-align: right;\n  }\n \n  .id-label {\n    font-size: 9px;\n    text-transform: uppercase;\n    color: #b2bec3;\n    font-weight: 700;\n  }\n \n  .id-value {\n    font-family: 'Space Mono', monospace;\n    font-size: 12px;\n    font-weight: 700;\n    color: #000;\n  }\n \n  .parties-summary {\n    display: grid;\n    grid-template-columns: 1fr 1fr;\n    gap: 20px;\n    margin-bottom: 40px;\n  }\n \n  .party-card {\n    padding: 20px;\n    background: #f8f9fa;\n    border-radius: 4px;\n    border: 1px solid #edf2f7;\n  }\n \n  .party-card.accent {\n    background: #000;\n    color: #fff;\n  }\n \n  .party-role {\n    font-size: 9px;\n    text-transform: uppercase;\n    letter-spacing: 1px;\n    font-weight: 700;\n    margin-bottom: 10px;\n    display: block;\n    opacity: 0.7;\n  }\n \n  .party-detail {\n    font-size: 14px;\n    font-weight: 700;\n  }\n \n  .party-id {\n    font-size: 10px;\n    margin-top: 5px;\n    opacity: 0.8;\n  }\n \n  .legal-clause {\n    margin-bottom: 30px;\n    position: relative;\n  }\n \n  .clause-title {\n    font-size: 13px;\n    font-weight: 800;\n    text-transform: uppercase;\n    color: #000;\n    margin-bottom: 15px;\n    display: flex;\n    align-items: center;\n    gap: 10px;\n  }\n \n  .clause-title::after {\n    content: '';\n    flex: 1;\n    height: 1px;\n    background: #eee;\n  }\n \n  .clause-content {\n    text-align: justify;\n    color: #4a4a4a;\n  }\n \n  .data-highlight {\n    font-weight: 700;\n    color: #000;\n    border-bottom: 1.5px solid #000;\n  }\n \n  .tech-grid {\n    display: flex;\n    flex-wrap: wrap;\n    gap: 8px;\n    margin: 15px 0;\n  }\n \n  .pill {\n    padding: 4px 10px;\n    background: #fff;\n    border: 1px solid #000;\n    font-size: 9px;\n    font-weight: 600;\n    border-radius: 2px;\n    font-family: 'Space Mono', monospace;\n  }\n \n  .finance-table {\n    width: 100%;\n    border-collapse: collapse;\n    margin: 20px 0;\n  }\n \n  .finance-table th {\n    background: #000;\n    color: #fff;\n    padding: 10px;\n    font-size: 9px;\n    text-align: left;\n    text-transform: uppercase;\n  }\n \n  .finance-table td {\n    padding: 12px 10px;\n    border-bottom: 1px solid #eee;\n    font-family: 'Inter', sans-serif;\n  }\n \n  .total-row {\n    background: #f8f9fa;\n    font-weight: 800;\n    font-size: 14px;\n  }\n \n  .norm-block {\n    background: #f8f9fa;\n    border-left: 3px solid #000;\n    padding: 12px 15px;\n    margin-bottom: 12px;\n    border-radius: 0 4px 4px 0;\n  }\n \n  .norm-block strong {\n    color: #000;\n    font-size: 11px;\n  }\n \n  .norm-block p {\n    font-size: 10px;\n    color: #4a4a4a;\n    margin-top: 4px;\n  }\n \n  .norm-block a {\n    font-size: 9px;\n    color: #636e72;\n    text-decoration: none;\n  }\n \n  .firma-digital-box {\n    background: #f0faf5;\n    border: 1px solid #00b894;\n    border-radius: 4px;\n    padding: 20px;\n    margin-top: 15px;\n  }\n \n  .firma-digital-box h3 {\n    color: #00b894;\n    font-size: 12px;\n    margin-bottom: 8px;\n  }\n \n  .firma-digital-box p {\n    font-size: 10px;\n    color: #4a4a4a;\n  }\n \n  .signature-section {\n    margin-top: 60px;\n    page-break-inside: avoid;\n  }\n \n  .signature-grid {\n    display: grid;\n    grid-template-columns: 1fr 1fr;\n    gap: 60px;\n    margin-top: 40px;\n  }\n \n  .sign-box {\n    border-top: 2px solid #000;\n    padding-top: 15px;\n  }\n \n  .sign-name {\n    font-weight: 800;\n    font-size: 12px;\n  }\n \n  .sign-meta {\n    font-size: 9px;\n    color: #95a5a6;\n  }\n \n  .stamp {\n    float: right;\n    border: 2px solid #00b894;\n    color: #00b894;\n    padding: 10px;\n    font-weight: 800;\n    font-size: 8px;\n    text-transform: uppercase;\n    transform: rotate(-10deg);\n    border-radius: 4px;\n    margin-top: -10px;\n  }\n \n  @media print {\n    body { background: #fff; padding: 0; }\n    .contract-wrapper { box-shadow: none; border: none; }\n  }\n</style>\n</head>\n<body>\n \n<div class=\"contract-wrapper\">\n \n  <header class=\"header-grid\">\n    <div class=\"brand-identity\">\n      <h1>CodificAr Dev</h1>\n      <p>INGENIERÍA DE SOFTWARE & SOLUCIONES IA</p>\n    </div>\n    <div class=\"contract-id-box\">\n      <div class=\"id-label\">CONTRATO REF.</div>\n      <div class=\"id-value\">C-{{ new Date().getFullYear() }}-{{ Math.floor(Math.random()*9000+1000) }}</div>\n      <div class=\"id-label\" style=\"margin-top:5px;\">{{ $json.pais }}</div>\n    </div>\n  </header>\n \n  <div class=\"parties-summary\">\n    <div class=\"party-card\">\n      <span class=\"party-role\">El Contratante (Cliente)</span>\n      <div class=\"party-detail\">{{ $json.contratante_nombre }}</div>\n      <div class=\"party-id\">ID/CUIT: {{ $json.contratante_id }}</div>\n    </div>\n    <div class=\"party-card accent\">\n      <span class=\"party-role\">El Contratista (Proveedor)</span>\n      <div class=\"party-detail\">{{ $json.contratista_nombre }}</div>\n      <div class=\"party-id\">ID/CUIT: {{ $json.contratista_id }}</div>\n    </div>\n  </div>\n \n  <div class=\"legal-clause\">\n    <h2 class=\"clause-title\">01. Objeto de la Prestación</h2>\n    <div class=\"clause-content\">\n      <p>Las partes acuerdan la ejecución del servicio denominado <span class=\"data-highlight\">{{ $json.servicio_descripcion }}</span>. El alcance comprende el diseño técnico, desarrollo, implementación y despliegue de las funcionalidades especificadas, conforme a los estándares profesionales y las mejores prácticas de la industria.</p>\n    </div>\n  </div>\n \n  <div class=\"legal-clause\">\n    <h2 class=\"clause-title\">02. Vigencia y Plazos</h2>\n    <div class=\"clause-content\">\n      <p>El presente contrato tendrá una duración de <span class=\"data-highlight\">{{ $json.duracion_meses }} meses</span>, computados desde el día <span class=\"data-highlight\">{{ $json.plazo_inicio }}</span> hasta el día <span class=\"data-highlight\">{{ $json.plazo_fin }}</span>.</p>\n      <p style=\"margin-top:8px;\">Las partes podrán acordar prórrogas de común acuerdo y por escrito, con una antelación mínima de quince (15) días hábiles a la fecha de vencimiento.</p>\n    </div>\n  </div>\n \n  <div class=\"legal-clause\">\n    <h2 class=\"clause-title\">03. Contraprestación Económica</h2>\n    <div class=\"clause-content\">\n      <p>La contraprestación económica total por los servicios descritos asciende a:</p>\n      <table class=\"finance-table\">\n        <thead>\n          <tr>\n            <th>Concepto</th>\n            <th>Porcentaje</th>\n            <th>Monto ({{ $json.precio_moneda }})</th>\n          </tr>\n        </thead>\n        <tbody>\n          <tr>\n            <td>Pago Inicial / Anticipo</td>\n            <td>30%</td>\n            <td>{{ (Number($json.precio_monto || 0) * 0.30).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>\n          </tr>\n          <tr>\n            <td>Entrega Intermedia / Hito de Avance</td>\n            <td>40%</td>\n            <td>{{ (Number($json.precio_monto || 0) * 0.40).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>\n          </tr>\n          <tr>\n            <td>Entrega Final / Cierre de Proyecto</td>\n            <td>30%</td>\n            <td>{{ (Number($json.precio_monto || 0) * 0.30).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }}</td>\n          </tr>\n          <tr class=\"total-row\">\n            <td>VALOR TOTAL DEL CONTRATO</td>\n            <td>100%</td>\n            <td>{{ Number($json.precio_monto || 0).toLocaleString('es-AR', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) }} {{ $json.precio_moneda }}</td>\n          </tr>\n        </tbody>\n      </table>\n      <p style=\"margin-top:8px;\">Los pagos se realizarán mediante transferencia bancaria dentro de los diez (10) días hábiles posteriores a la aprobación de cada hito. Los montos están expresados en <span class=\"data-highlight\">{{ $json.precio_moneda }}</span>.</p>\n    </div>\n  </div>\n \n  <div class=\"legal-clause\">\n    <h2 class=\"clause-title\">04. Obligaciones de las Partes</h2>\n    <div class=\"clause-content\">\n      <p><strong>Del Contratista:</strong> Ejecutar los servicios con diligencia profesional, cumplir los plazos establecidos, mantener informado al Contratante sobre el avance del proyecto y entregar los entregables en las condiciones pactadas.</p>\n      <p style=\"margin-top:8px;\"><strong>Del Contratante:</strong> Proveer la información y los recursos necesarios para la correcta ejecución del servicio, efectuar los pagos en los plazos convenidos y designar un responsable de contacto para la coordinación del proyecto.</p>\n    </div>\n  </div>\n \n  <div class=\"legal-clause\">\n    <h2 class=\"clause-title\">05. Confidencialidad y Protección de Datos</h2>\n    <div class=\"clause-content\">\n      <p>Las partes se obligan a mantener estricta confidencialidad sobre toda la información técnica, comercial, financiera y personal intercambiada con motivo del presente contrato. Esta obligación subsistirá por un plazo de dos (2) años posteriores a la finalización del vínculo contractual.</p>\n      <p style=\"margin-top:8px;\">El tratamiento de datos personales se realizará conforme a la <strong>Ley 25.326 de Protección de Datos Personales</strong> y su decreto reglamentario, garantizando los derechos de acceso, rectificación y supresión del titular de los datos.</p>\n    </div>\n  </div>\n \n  <div class=\"legal-clause\">\n    <h2 class=\"clause-title\">06. Independencia Laboral</h2>\n    <div class=\"clause-content\">\n      <p>Queda expresamente establecido que la relación entre las partes es de naturaleza civil y comercial, no existiendo vínculo de dependencia laboral alguno. El Contratista mantiene plena autonomía técnica, económica y jurídica en la ejecución de los servicios, conforme lo establece el <strong>Art. 2 de la Ley 20.744 de Contrato de Trabajo</strong> y la jurisprudencia aplicable en materia de locación de servicios.</p>\n    </div>\n  </div>\n \n  <div class=\"legal-clause\">\n    <h2 class=\"clause-title\">07. Marco Normativo y Fundamentación Legal</h2>\n    <div class=\"clause-content\">\n      <p>El presente instrumento se rige por las leyes de la República Argentina. A continuación se detallan las normas aplicables:</p>\n \n      <div style=\"margin-top:15px;\">\n        <div class=\"norm-block\">\n          <strong>Ley 25.326 — Protección de Datos Personales</strong>\n          <p>Regula el tratamiento de datos personales en archivos, registros o bases de datos para garantizar el derecho al honor y la intimidad. Exige la inscripción de bases de datos ante la AAIP y el consentimiento informado del titular.</p>\n          <a href=\"https://servicios.infoleg.gob.ar/infolegInternet/anexos/60000-64999/64790/norma.htm\" target=\"_blank\">Fuente oficial</a>\n        </div>\n \n        <div class=\"norm-block\">\n          <strong>Ley 25.506 — Ley de Firma Digital</strong>\n          <p>Reconoce y establece el valor jurídico de la firma electrónica y la firma digital. Establece que la firma digital posee la misma validez que la firma manuscrita, otorgando presunción de autoría e integridad.</p>\n          <a href=\"https://servicios.infoleg.gob.ar/infolegInternet/anexos/70000-74999/70749/norma.htm\" target=\"_blank\">Fuente oficial</a>\n        </div>\n \n        <div class=\"norm-block\">\n          <strong>Código Civil y Comercial de la Nación — Libro Tercero, Título IV</strong>\n          <p>Regula los contratos de servicios. Establece la libertad de formas, la autonomía de la voluntad de las partes y las obligaciones del prestador y del comitente en el marco de una relación civil o comercial.</p>\n          <a href=\"https://servicios.infoleg.gob.ar/infolegInternet/anexos/235000-239999/235975/norma.htm\" target=\"_blank\">Fuente oficial</a>\n        </div>\n \n        <div class=\"norm-block\">\n          <strong>Régimen Tributario — AFIP (Monotributo / Régimen General)</strong>\n          <p>Los servicios están sujetos a retenciones de Impuesto a las Ganancias e IVA según la condición frente al impuesto del contratista. Los trabajadores independientes suelen encuadrarse en el Monotributo (Ley 24.977) para simplificar cargas.</p>\n          <a href=\"https://www.afip.gob.ar/monotributo/ley.asp\" target=\"_blank\">Fuente oficial</a>\n        </div>\n \n        <div class=\"norm-block\">\n          <strong>Código Procesal Civil y Comercial de la Nación — Jurisdicción</strong>\n          <p>Regula la competencia de los tribunales. En contratos comerciales, permite la prórroga de jurisdicción, facultando a las partes a elegir los tribunales de una jurisdicción específica para resolver conflictos.</p>\n          <a href=\"https://servicios.infoleg.gob.ar/infolegInternet/anexos/15000-19999/16547/texact.htm\" target=\"_blank\">Fuente oficial</a>\n        </div>\n \n        <div class=\"norm-block\">\n          <strong>Ley 20.744 de Contrato de Trabajo (Art. 2) — Independencia Laboral</strong>\n          <p>Diferencia la locación de servicios de la relación de dependencia. El contratista debe mantener autonomía técnica, económica y jurídica. La jurisprudencia argentina utiliza el principio de primacía de la realidad para evitar el fraude laboral.</p>\n          <a href=\"https://servicios.infoleg.gob.ar/infolegInternet/anexos/25000-29999/25552/texact.htm\" target=\"_blank\">Fuente oficial</a>\n        </div>\n      </div>\n    </div>\n  </div>\n \n  <div class=\"legal-clause\">\n    <h2 class=\"clause-title\">08. Validez de la Firma Digital y Electrónica</h2>\n    <div class=\"clause-content\">\n      <div class=\"firma-digital-box\">\n        <h3>Protocolo de Validación Digital</h3>\n        <p>Conforme a lo establecido en la <strong>Ley 25.506 de Firma Digital</strong> de la República Argentina, las partes declaran que el presente documento firmado mediante medios electrónicos goza de plena eficacia jurídica, integridad y autoría. El consentimiento expresado digitalmente es equivalente a la firma manuscrita según los términos de la normativa vigente.</p>\n        <p style=\"margin-top:8px;\">La firma digital aplicada al presente instrumento cumple con los requisitos de identificación del firmante, vinculación exclusiva al signatario, control exclusivo del firmante sobre los medios utilizados, y detección de cualquier modificación ulterior del documento.</p>\n      </div>\n    </div>\n  </div>\n \n  <div class=\"legal-clause\">\n    <h2 class=\"clause-title\">09. Jurisdicción y Resolución de Controversias</h2>\n    <div class=\"clause-content\">\n      <p>Para cualquier divergencia derivada del presente contrato, las partes se someten a la jurisdicción de los Tribunales Ordinarios en lo Civil y Comercial de <span class=\"data-highlight\">{{ $json.ciudad || $json.pais }}</span>, {{ $json.pais }}, renunciando a cualquier otro fuero o jurisdicción que pudiera corresponderles.</p>\n    </div>\n  </div>\n \n  <div class=\"signature-section\">\n    <p style=\"text-align: center; margin-bottom: 20px;\">Firmado en <strong>{{ $json.ciudad || '' }}</strong>, <strong>{{ $json.pais }}</strong>, a los {{ new Date().toLocaleDateString('es-AR',{day:'2-digit',month:'long',year:'numeric'}) }}</p>\n \n    <div class=\"signature-grid\">\n      <div class=\"sign-box\">\n        <div class=\"sign-name\">{{ $json.contratante_nombre }}</div>\n        <div class=\"sign-meta\">ID/CUIT: {{ $json.contratante_id }}</div>\n        <div class=\"sign-meta\">EL CONTRATANTE</div>\n      </div>\n      <div class=\"sign-box\">\n        <div class=\"stamp\">Validado Digitalmente</div>\n        <div class=\"sign-name\">{{ $json.contratista_nombre }}</div>\n        <div class=\"sign-meta\">ID/CUIT: {{ $json.contratista_id }}</div>\n        <div class=\"sign-meta\">EL CONTRATISTA</div>\n      </div>\n    </div>\n  </div>\n \n</div>\n \n</body>\n</html>\n  font-weight: bold;\n  padding: 8px;\n}\n\nh2 {\n  color: #909399;\n  font-size: 18px;\n  font-weight: bold;\n  padding: 8px;\n}\n</style>\n\n<script>\nconsole.log(\"Hello World!\");\n</script>"
+      },
+      "type": "n8n-nodes-base.html",
+      "typeVersion": 1.2,
+      "position": [
+        3424,
+        32
+      ],
+      "id": "3aa40ff1-122e-4ae3-bf0f-8d98c4c86385",
+      "name": "HTML"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.pdf.co/v1/pdf/convert/from/html",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "html",
+              "value": "={{ $json.html }}"
+            },
+            {
+              "name": "margins",
+              "value": "25mm 26mm 17mm 20mm"
+            },
+            {
+              "name": "paperSize",
+              "value": "A4"
+            },
+            {
+              "name": "orientation",
+              "value": "portrait"
+            },
+            {
+              "name": "printBackground",
+              "value": "true"
+            },
+            {
+              "name": "scale",
+              "value": "1"
+            },
+            {
+              "name": "useCssPageSize",
+              "value": "true"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3600,
+        32
+      ],
+      "id": "f6ca60d2-483f-4542-ad0a-02a0daf02a76",
+      "name": "CREACIÓN PDF1",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UmXXq2q90447wB1D",
+          "name": "Header Auth account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        3808,
+        32
+      ],
+      "id": "6cd40f07-624c-4879-b9e5-e13380fa9554",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "sendDocument",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        4016,
+        32
+      ],
+      "id": "0136a056-fea6-496e-8e7c-4839fcbd8231",
+      "name": "Send a document",
+      "webhookId": "19051ec4-03c7-4a0f-91d8-bb1a9a099764",
+      "credentials": {
+        "telegramApi": {
+          "id": "1k866g8cavcLTZlF",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "get.voice.file.id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract.Info.Prompt",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get.voice.file.id": {
+      "main": [
+        [
+          {
+            "node": "voice file.oga a file.ogg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract.Info.Prompt": {
+      "main": [
+        [
+          {
+            "node": "parsear.codigo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "voice file.oga a file.ogg": {
+      "main": [
+        [
+          {
+            "node": "post.groq.whisper(Transcriptor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "post.groq.whisper(Transcriptor)": {
+      "main": [
+        [
+          {
+            "node": "Extract.Info.Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "parsear.codigo": {
+      "main": [
+        [
+          {
+            "node": "validardatos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "validardatos": {
+      "main": [
+        [
+          {
+            "node": "if.con/sin.datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "if.con/sin.datos": {
+      "main": [
+        [
+          {
+            "node": "msg.datos.completo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "msg.datos.faltantes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "msg.datos.faltantes": {
+      "main": [
+        [
+          {
+            "node": "return.msg.telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "msg.datos.completo": {
+      "main": [
+        [
+          {
+            "node": "Normas Argentinas",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Combina.2.Nodos",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Normas Argentinas": {
+      "main": [
+        [
+          {
+            "node": "Combina.2.Nodos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combina.2.Nodos": {
+      "main": [
+        [
+          {
+            "node": "Armado Clausulas",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Armado Clausulas": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Groq Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTML": {
+      "main": [
+        [
+          {
+            "node": "CREACIÓN PDF1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CREACIÓN PDF1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Send a document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "85ad5120-7a6b-404c-888a-bafd39b86c1e",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7622ee26337aca7755637da52291f31c11d595b5b3d4235fbc106498c3d6ef0c"
+  },
+  "id": "RTDSXE7DOd8X1ns3",
+  "tags": [
+    {
+      "updatedAt": "2026-05-22T19:29:09.732Z",
+      "createdAt": "2026-05-22T19:29:09.732Z",
+      "id": "I19ctrZVUtrXaLB4",
+      "name": "german-morvillo"
+    }
+  ]
+}
