@@ -1,0 +1,209 @@
+{
+  "name": "Encuesta-CSAT",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "¿Cómo fue tu experiencia con nuestro soporte?",
+        "formDescription": "Encuesta que mide el NPS del cliente.",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Número de reclamo"
+            },
+            {
+              "fieldLabel": "Tu email de contacto",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "¿Qué tan probable es que recomiendes nuestro servicio? (1 = poco probable, 10 = muy probable)",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "1"
+                  },
+                  {
+                    "option": "2"
+                  },
+                  {
+                    "option": "3"
+                  },
+                  {
+                    "option": "4"
+                  },
+                  {
+                    "option": "5"
+                  },
+                  {
+                    "option": "6"
+                  },
+                  {
+                    "option": "7"
+                  },
+                  {
+                    "option": "8"
+                  },
+                  {
+                    "option": "9"
+                  },
+                  {
+                    "option": "10"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldLabel": "Comentarios adicionales"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        0,
+        0
+      ],
+      "id": "6e39e8ac-8fe0-4367-9159-ab992fcc5a02",
+      "name": "On form submission",
+      "webhookId": "16b4a076-ca42-44e0-83eb-bc256e066c39"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1tJhHvaEHAcEMToX9cgLLjI67TnmbOKGqt9JDtngEF1Y",
+          "mode": "list",
+          "cachedResultName": "NPS_Registros",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tJhHvaEHAcEMToX9cgLLjI67TnmbOKGqt9JDtngEF1Y/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Hoja 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1tJhHvaEHAcEMToX9cgLLjI67TnmbOKGqt9JDtngEF1Y/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha": "={{ $now.toISO() }}",
+            "Nro_Reclamo": "={{ $json.query?.reclamo ?? $json['Número de reclamo'] }}",
+            "Email": "={{ $json['Tu email de contacto'] }}",
+            "Puntaje_NPS": "={{ $json['¿Qué tan probable es que recomiendes nuestro servicio? (1 = poco probable, 10 = muy probable)'] }}",
+            "Comentario": "={{ $json['Comentarios adicionales'] }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha",
+              "displayName": "Fecha",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nro_Reclamo",
+              "displayName": "Nro_Reclamo",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Puntaje_NPS",
+              "displayName": "Puntaje_NPS",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Comentario",
+              "displayName": "Comentario",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        208,
+        0
+      ],
+      "id": "29f869e5-483e-4b21-a351-bd427a1579fc",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "ZfgwlMiIMRaAjni8",
+          "name": "Google Sheets account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "a5051921-84d1-4000-b82b-dc8596a8eded",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "7622ee26337aca7755637da52291f31c11d595b5b3d4235fbc106498c3d6ef0c"
+  },
+  "id": "Mbdi5qx2rwAZ7XDz",
+  "tags": [
+    {
+      "updatedAt": "2026-05-22T19:29:09.732Z",
+      "createdAt": "2026-05-22T19:29:09.732Z",
+      "id": "I19ctrZVUtrXaLB4",
+      "name": "german-morvillo"
+    }
+  ]
+}
