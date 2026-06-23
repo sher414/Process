@@ -429,7 +429,7 @@
     {
       "parameters": {
         "method": "POST",
-        "url": "https://hooks.slack.com/services/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",
+        "url": "{{$vars.SLACK_WEBHOOK_ETL}}",,
         "sendBody": true,
         "specifyBody": "json",
         "jsonBody": "={\n  \"text\": \"✅ *ETL Distribuidora completado*\\n\\n📅 *Fecha:* {{$now.toFormat('dd/MM/yyyy HH:mm')}}\\n📊 *Registros cargados:* {{$json.data ? $json.data.length : 'N/A'}}\\n🏭 *Fuente:* BD_VENTAS + PRESUPUESTO\\n📁 *Destino:* DW_ETL_Distribuidora → fact_ventas\\n\\nPower BI ya puede refrescar el dashboard. 🚀\\n\\n🔗 <https://distribuidoraetl.slack.com/archives/C0BCEF32XTK|Ver canal ETL Distribuidora>\"\n}",
