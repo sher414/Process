@@ -1,0 +1,147 @@
+// ══════════════════════════════════════════════════════
+// PASO 1: OBTENER TODOS LOS DATOS QUE LLEGARON AL NODO
+// ══════════════════════════════════════════════════════
+
+// $input.all() es la función de n8n para traer TODOS los ítems
+// que llegaron desde el nodo anterior (el Merge con 274 ítems)
+// Los guardamos en una constante para trabajar con ellos
+const items = $input.all();
+
+
+// ══════════════════════════════════════════════════════
+// PASO 2: SEPARAR VENTAS DE PRESUPUESTOS
+// ══════════════════════════════════════════════════════
+
+// De los 274 ítems mezclados, filtramos solo los que
+// tienen el campo "venta_id" — esos son los 174 registros
+// de BD_VENTAS. El .map(i => i.json) extrae solo el
+// contenido JSON de cada ítem (sin la envoltura de n8n)
+const ventas = items
+  .filter(i => i.json.venta_id)
+  .map(i => i.json);
+
+// Lo mismo pero para presupuestos: filtramos los que
+// tienen "pres_id" — esos son los 100 registros
+// de la hoja PRESUPUESTO
+const presupuestos = items
+  .filter(i => i.json.pres_id)
+  .map(i => i.json);
+
+
+// ══════════════════════════════════════════════════════
+// PASO 3: CREAR UN DICCIONARIO DE BÚSQUEDA DE PRESUPUESTOS
+// ══════════════════════════════════════════════════════
+
+// Creamos un objeto vacío que va a funcionar como
+// una tabla de búsqueda rápida (como un VLOOKUP de Excel)
+const presLookup = {};
+
+// Recorremos cada fila de presupuesto con un for...of
+for (const p of presupuestos) {
+
+  // Construimos una "clave única" combinando zona + producto + mes
+  // Ejemplo: "Z001_P003_6" = Zona 1, Producto 3, Junio
+  // Esto nos permite cruzar exactamente con la venta correcta
+  const key = `${p.zona_id}_${p.producto_id}_${p.mes}`;
+
+  // Guardamos el importe presupuestado con esa clave
+  // Resultado: presLookup["Z001_P003_6"] = 36786
+  presLookup[key] = p.importe_presupuestado;
+}
+
+
+// ══════════════════════════════════════════════════════
+// PASO 4: TRANSFORMAR CADA VENTA (el corazón del ETL)
+// ══════════════════════════════════════════════════════
+
+// .map() recorre cada venta y devuelve una versión transformada
+// idx es el número de índice (0, 1, 2...) por si lo necesitamos
+const resultado = ventas.map((v, idx) => {
+
+  // Convertimos el string de fecha "2025-06-02" a objeto Date
+  // para poder extraer año, mes, semana, trimestre
+  const fecha = new Date(v.fecha);
+
+  // getMonth() devuelve 0-11, por eso sumamos 1
+  // Junio = getMonth() devuelve 5, nosotros queremos 6
+  const mes = fecha.getMonth() + 1;
+
+  // ── CORRECCIÓN DE CAMPOS INVERTIDOS ──────────────────
+  // En la fuente BD_VENTAS, los campos "region" y "vendedor"
+  // estaban al revés (error en el origen de datos).
+  // Acá los cruzamos: lo que vino como "vendedor" era la región
+  // y lo que vino como "region" era el nombre del vendedor
+  const region_correcta = v.vendedor;   // "GBA Norte" estaba en vendedor
+  const vendedor_correcto = v.region;   // "Carlos Méndez" estaba en region
+
+  // ── KPI 1: MARGEN ────────────────────────────────────
+  // Margen = Importe de venta - (Costo unitario × Cantidad)
+  // Ejemplo: 49344.95 - (210 × 145) = 49344.95 - 30450 = 18894.95
+  // parseFloat + toFixed(2) asegura exactamente 2 decimales
+  const margen = parseFloat(
+    (v.importe_venta - (v.costo_unitario * v.cantidad)).toFixed(2)
+  );
+
+  // ── KPI 2: % VS PRESUPUESTO ───────────────────────────
+  // Armamos la misma clave que usamos en el lookup
+  // para encontrar el presupuesto que corresponde a ESTA venta
+  const key = `${v.zona}_${v.producto_id}_${mes}`;
+
+  // Buscamos en el diccionario. Si no existe, devolvemos null
+  // (puede pasar si hay una zona/producto sin presupuesto asignado)
+  const presupuesto = presLookup[key] || null;
+
+  // Si encontramos presupuesto, calculamos el porcentaje de ejecución
+  // Ejemplo: venta 49344 / presupuesto 53005 × 100 = 93.09%
+  // Si no hay presupuesto, devolvemos null (no dividimos por cero)
+  const pct_vs_presupuesto = presupuesto
+    ? parseFloat(((v.importe_venta / presupuesto) * 100).toFixed(2))
+    : null;
+
+  // ── ARMAR EL ÍTEM DE SALIDA ───────────────────────────
+  // n8n exige que cada ítem devuelto tenga la estructura { json: {...} }
+  // Adentro armamos todos los campos del esquema estrella
+  return {
+    json: {
+      // ─ fact_ventas: los datos transaccionales de la venta
+      venta_id: v.venta_id,         // "V00001"
+      fecha: v.fecha,               // "2025-06-02" (ISO 8601)
+      anio: fecha.getFullYear(),    // 2025
+      mes: mes,                     // 6
+      // Semana del mes: día 1-7 = semana 1, día 8-14 = semana 2, etc.
+      semana: Math.ceil(fecha.getDate() / 7),
+      // Trimestre: mes 1-3=Q1, 4-6=Q2, 7-9=Q3, 10-12=Q4
+      trimestre: `Q${Math.ceil(mes / 3)}`,
+
+      // ─ dim_producto: datos del producto vendido
+      producto_id: v.producto_id,   // "P001"
+      sku: v.sku,                   // "ACT-001"
+      descripcion: v.descripcion,   // "Aceite de Girasol 1.5L"
+      categoria: v.categoria,       // "Aceites"
+      linea: v.linea,               // "Premium"
+
+      // ─ dim_cliente: datos del cliente
+      cliente_id: v.cliente_id,     // "C002"
+      razon_social: v.razon_social, // "Hipermercado Sur SRL"
+      canal: v.canal,               // "Supermercado"
+
+      // ─ dim_zona: datos geográficos (ya corregidos)
+      zona_id: v.zona,              // "Z001"
+      region: region_correcta,      // "GBA Norte" (corregido)
+      vendedor: vendedor_correcto,  // "Carlos Méndez" (corregido)
+
+      // ─ métricas y KPIs calculados
+      cantidad: v.cantidad,                         // 145
+      precio_unitario: v.precio_unitario,           // 340.31
+      costo_unitario: v.costo_unitario,             // 210
+      importe_venta: v.importe_venta,               // 49344.95
+      margen: margen,                               // 18894.95
+      importe_presupuestado: presupuesto,           // 53005 (del lookup)
+      pct_vs_presupuesto: pct_vs_presupuesto        // 93.09%
+    }
+  };
+});
+
+// Devolvemos el array de 174 ítems transformados
+// n8n toma este return y lo pasa al siguiente nodo
+return resultado;
