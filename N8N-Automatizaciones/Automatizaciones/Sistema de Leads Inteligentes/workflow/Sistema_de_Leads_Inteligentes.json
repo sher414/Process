@@ -1,0 +1,456 @@
+{
+  "name": "Sistema de Leads Inteligentes",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "capture-lead",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -304
+      ],
+      "id": "bdf48f90-1959-4cbc-9184-c47e31c37718",
+      "name": "Webhook",
+      "webhookId": "edf9f93d-9968-4083-8978-9f9f46e4150e"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ValidateLeadData v1.0\nconst lead = $input.first().json.body;\n\nconst errors = [];\nconst warnings = [];\n\n// Validar nombre\nif (!lead.nombre || lead.nombre.trim().length < 2) {\n  errors.push('nombre requerido (mínimo 2 caracteres)');\n}\n\n// Validar email\nconst emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\nif (!lead.email || !emailRegex.test(lead.email)) {\n  errors.push('email inválido');\n}\n\n// Detectar emails genéricos\nconst genericDomains = ['gmail.com', 'hotmail.com', 'yahoo.com', 'outlook.com'];\nif (lead.email && genericDomains.some(d => lead.email.toLowerCase().endsWith(d))) {\n  warnings.push('email personal detectado');\n}\n\n// Validar origen\nconst validOrigenes = ['landing', 'referral', 'manual', 'webinar'];\nif (lead.origen && !validOrigenes.includes(lead.origen)) {\n  warnings.push('origen no reconocido - usando default');\n  lead.origen = 'manual';\n}\n\n// Si hay errores, rechazar\nif (errors.length > 0) {\n  return [{\n    json: {\n      isValid: false,\n      errors,\n      warnings,\n      originalData: lead,\n      action: 'reject'\n    }\n  }];\n}\n\n// Limpiar y normalizar\nconst cleanLead = {\n  nombre:   lead.nombre.trim(),\n  email:    lead.email.toLowerCase().trim(),\n  empresa:  (lead.empresa  || '').trim(),\n  telefono: (lead.telefono || '').trim(),\n  origen:   lead.origen || 'manual',\n  notas:    (lead.notas   || '').trim(),\n  receivedAt: new Date().toISOString()\n};\n\nreturn [{\n  json: {\n    ...cleanLead,\n    isValid: true,\n    warnings,\n    validatedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        224,
+        -304
+      ],
+      "id": "fc51dc65-e065-4658-b242-07a58fc23c1e",
+      "name": "ValidateLeadData"
+    },
+    {
+      "parameters": {
+        "jsCode": "// CheckDuplicate v1.0\nconst lead = $input.first().json;\nconst leadEmail = lead.email;\n\n// Forma correcta de acceder a memoria persistente en n8n\nconst staticData = $getWorkflowStaticData('global');\n\n// Si no existe el registro de leads, lo inicializamos\nif (!staticData.processed_leads) {\n  staticData.processed_leads = {};\n}\n\nlet processedLeads = staticData.processed_leads;\n\n// Limpiar leads de más de 30 días\nconst cutoff = Date.now() - (30 * 24 * 60 * 60 * 1000);\nObject.keys(processedLeads).forEach(email => {\n  if (processedLeads[email].timestamp < cutoff) {\n    delete processedLeads[email];\n  }\n});\n\nconst isDuplicate = processedLeads.hasOwnProperty(leadEmail);\n\nif (isDuplicate) {\n  const existing = processedLeads[leadEmail];\n  console.log(`⏭️ Lead duplicado: ${leadEmail}`);\n  return [{\n    json: {\n      ...lead,\n      isDuplicate: true,\n      firstSeenAt: new Date(existing.timestamp).toISOString(),\n      action: 'update_existing'\n    }\n  }];\n}\n\n// Registrar como procesado\nprocessedLeads[leadEmail] = {\n  timestamp: Date.now()\n};\n\nconsole.log(`✅ Lead nuevo: ${leadEmail}`);\nreturn [{\n  json: {\n    ...lead,\n    isDuplicate: false,\n    action: 'create_new'\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        448,
+        -304
+      ],
+      "id": "17833851-be0c-424f-b441-1ed531cb5f10",
+      "name": "CheckDuplicate"
+    },
+    {
+      "parameters": {
+        "url": "https://autocomplete.clearbit.com/v1/companies/suggest",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "=={{ $json.empresa }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        672,
+        -304
+      ],
+      "id": "737fe6f4-6e28-4522-b900-802d50f9c645",
+      "name": "CallEnrichmentAPI",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "78c17f18-4bd5-4118-af42-a728bd299b65",
+              "leftValue": "={{ $json.name }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        896,
+        -304
+      ],
+      "id": "aa53d404-a9e3-40e8-aeb9-f1ece8999f60",
+      "name": "IF_EnrichmentSuccess"
+    },
+    {
+      "parameters": {
+        "jsCode": "// ParseEnrichment v1.1\n// Recuperamos el lead original desde CheckDuplicate\n// porque Clearbit sobreescribió los datos del pipeline\n\nconst bestMatch = $input.first().json;\n\n// Recuperamos los datos originales del lead desde el nodo anterior\nconst originalLead = $('CheckDuplicate').first().json;\n\nconst enrichedLead = {\n  // Datos originales del lead\n  nombre:      originalLead.nombre   || '',\n  email:       originalLead.email    || '',\n  empresa:     originalLead.empresa  || '',\n  telefono:    originalLead.telefono || '',\n  origen:      originalLead.origen   || 'manual',\n  notas:       originalLead.notas    || '',\n  isValid:     originalLead.isValid,\n  warnings:    originalLead.warnings || [],\n  isDuplicate: originalLead.isDuplicate,\n  action:      originalLead.action,\n  receivedAt:  originalLead.receivedAt,\n\n  // Datos enriquecidos por Clearbit\n  company:  bestMatch.name   || '',\n  domain:   bestMatch.domain || '',\n  logo:     bestMatch.logo   || '',\n\n  // Metadata\n  enrichmentMethod: 'clearbit_api',\n  enrichedAt: new Date().toISOString()\n};\n\nreturn [{ json: enrichedLead }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        -304
+      ],
+      "id": "1d4934fc-02d8-4226-99d1-b487f4418452",
+      "name": "ParseEnrichment"
+    },
+    {
+      "parameters": {
+        "jsCode": "// CalculateLeadScore v1.0\n// Calcula puntaje 0-100 basado en reglas de negocio\n\nconst lead = $input.first().json;\n\nlet score = 0;\nconst breakdown = {};\n\n// 1. Score por origen\nconst origenScores = {\n  'webinar':  30,\n  'referral': 25,\n  'landing':  20,\n  'manual':   10\n};\nconst origenPts = origenScores[lead.origen] || 0;\nscore += origenPts;\nbreakdown.origen = origenPts;\n\n// 2. Penalización por email personal\nif (lead.warnings && lead.warnings.includes('email personal detectado')) {\n  score -= 15;\n  breakdown.email_personal = -15;\n}\n\n// 3. Bonus por tener dominio de empresa (Clearbit lo encontró)\nif (lead.domain && lead.domain.length > 0) {\n  score += 20;\n  breakdown.domain_found = 20;\n}\n\n// 4. Bonus por datos completos\nconst camposCompletos = [\n  lead.empresa,\n  lead.telefono,\n  lead.domain,\n  lead.company\n].filter(Boolean).length;\n\nconst completenessPts = camposCompletos * 5;\nscore += completenessPts;\nbreakdown.completeness = completenessPts;\n\n// Normalizar entre 0 y 100\nscore = Math.max(0, Math.min(100, score));\n\n// Clasificar el lead\nlet categoria = 'Cold';\nif (score >= 70) categoria = 'Hot';\nelse if (score >= 40) categoria = 'Warm';\n\nconsole.log(`📊 Score: ${score} (${categoria})`);\n\nreturn [{\n  json: {\n    ...lead,\n    score,\n    categoria,\n    scoreBreakdown: breakdown,\n    scoredAt: new Date().toISOString()\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1344,
+        -304
+      ],
+      "id": "cb382a8f-caf5-42bb-870d-cf7cb26935c1",
+      "name": "CalculateLeadScore"
+    },
+    {
+      "parameters": {
+        "authentication": "serviceAccount",
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "<TU_SHEET_ID>",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Leads_IA",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/<TU_SHEET_ID>/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "nombre": "={{ $json.nombre }}",
+            "empresa": "={{ $json.empresa }}",
+            "company": "={{ $json.company }}",
+            "domain": "={{ $json.domain }}",
+            "origen": "={{ $json.origen }}",
+            "score": "={{ $json.score }}",
+            "categoria": "={{ $json.categoria }}",
+            "email": "={{ $json.email }}",
+            "enrichmentMethod": "={{ $json.enrichmentMethod }}",
+            "receivedAt": "={{ $json.receivedAt }}"
+          },
+          "matchingColumns": [
+            "email"
+          ],
+          "schema": [
+            {
+              "id": "nombre",
+              "displayName": "nombre",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "empresa",
+              "displayName": "empresa",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "displayName": "company",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "domain",
+              "displayName": "domain",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "origen",
+              "displayName": "origen",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "displayName": "score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "categoria",
+              "displayName": "categoria",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "enrichmentMethod",
+              "displayName": "enrichmentMethod",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "receivedAt",
+              "displayName": "receivedAt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1568,
+        -304
+      ],
+      "id": "102fa979-6904-425a-9231-f4486d658147",
+      "name": "Append or update row in sheet",
+      "credentials": {
+        "googleApi": {
+          "id": "<CREDENTIAL_ID>",
+          "name": "<TU_GOOGLE_SHEETS_CREDENTIAL>"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d21b9608-a60a-4f71-8c0c-ee0d6bbf4731",
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 70,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1792,
+        -304
+      ],
+      "id": "8a236d70-6446-4c58-9a2f-6a4e3d7dc6c5",
+      "name": "IF_HighQuality"
+    },
+    {
+      "parameters": {
+        "resource": "mail",
+        "fromEmail": "<TU_EMAIL>",
+        "fromName": "<TU_NOMBRE>",
+        "toEmail": "<TU_EMAIL>",
+        "subject": "=Lead Hot: {{ $json.nombre }} - Score: {{ $json.score }}",
+        "contentValue": "=🎯 Nuevo lead calificado como HOT  Nombre: {{ $json.nombre }} Email: {{ $json.email }} Empresa: {{ $json.company }} Dominio: {{ $json.domain }} Origen: {{ $json.origen }}  📊 Score: {{ $json.score }}/100 🏷️ Categoría: {{ $json.categoria }}  Recibido: {{ $json.receivedAt }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.sendGrid",
+      "typeVersion": 1,
+      "position": [
+        2000,
+        -400
+      ],
+      "id": "72d2318c-263b-4de5-954a-f0641514c6fe",
+      "name": "Send an email",
+      "credentials": {
+        "sendGridApi": {
+          "id": "<CREDENTIAL_ID>",
+          "name": "<TU_SENDGRID_CREDENTIAL>"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "ValidateLeadData",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ValidateLeadData": {
+      "main": [
+        [
+          {
+            "node": "CheckDuplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CheckDuplicate": {
+      "main": [
+        [
+          {
+            "node": "CallEnrichmentAPI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CallEnrichmentAPI": {
+      "main": [
+        [
+          {
+            "node": "IF_EnrichmentSuccess",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF_EnrichmentSuccess": {
+      "main": [
+        [
+          {
+            "node": "ParseEnrichment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ParseEnrichment": {
+      "main": [
+        [
+          {
+            "node": "CalculateLeadScore",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CalculateLeadScore": {
+      "main": [
+        [
+          {
+            "node": "Append or update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append or update row in sheet": {
+      "main": [
+        [
+          {
+            "node": "IF_HighQuality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF_HighQuality": {
+      "main": [
+        [
+          {
+            "node": "Send an email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "5f2c633e-b068-4725-b366-a8cec71b819f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "<TU_INSTANCE_ID>"
+  },
+  "id": "pv2vd11zAriJgAKC",
+  "tags": [
+    {
+      "updatedAt": "2026-05-22T19:29:09.732Z",
+      "createdAt": "2026-05-22T19:29:09.732Z",
+      "id": "I19ctrZVUtrXaLB4",
+      "name": "german-morvillo"
+    }
+  ]
+}
