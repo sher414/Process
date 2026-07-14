@@ -1,0 +1,569 @@
+{
+  "name": "captura-leads-landing",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "leads",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        -48
+      ],
+      "id": "0253d508-a273-407b-8ae6-4e0d53902807",
+      "name": "Webhook",
+      "webhookId": "b31f271f-38b5-46b3-b6f4-a3c58fc038e1"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "leads",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "eq",
+              "keyValue": "={{ $json.body.email }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        640,
+        -112
+      ],
+      "id": "4ba3c892-f89b-43f3-a868-ef6c6766823c",
+      "name": "Get many rows",
+      "alwaysOutputData": true,
+      "credentials": {
+        "supabaseApi": {
+          "id": "HAtthNdpTWnXYq0F",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "a29134fd-fae2-41e8-9f8a-1e33f3dae627",
+              "leftValue": "={{ $json.email }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        864,
+        -48
+      ],
+      "id": "af7824b3-9095-4c3a-ab5f-6629a7724b15",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "tableId": "leads",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nombre",
+              "fieldValue": "={{ $('Webhook').item.json.body.nombre }}"
+            },
+            {
+              "fieldId": "email",
+              "fieldValue": "={{ $('Webhook').item.json.body.email }}"
+            },
+            {
+              "fieldId": "telefono",
+              "fieldValue": "={{ $('Webhook').item.json.body.telefono }}"
+            },
+            {
+              "fieldId": "empresa",
+              "fieldValue": "={{ $('Webhook').item.json.body.empresa }}"
+            },
+            {
+              "fieldId": "tipo_proyecto",
+              "fieldValue": "={{ $('Webhook').item.json.body.tipo_proyecto }}"
+            },
+            {
+              "fieldId": "modalidad",
+              "fieldValue": "={{ $('Webhook').item.json.body.modalidad }}"
+            },
+            {
+              "fieldId": "mensaje",
+              "fieldValue": "={{ $('Webhook').item.json.body.mensaje }}"
+            },
+            {
+              "fieldId": "origen",
+              "fieldValue": "={{ $('Webhook').item.json.body.origen }}"
+            },
+            {
+              "fieldId": "score",
+              "fieldValue": "={{ $json.score }}"
+            },
+            {
+              "fieldId": "clasificacion",
+              "fieldValue": "={{ $json.clasificacion }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        -144
+      ],
+      "id": "43bafd17-4f45-48f2-82ed-885106d9f689",
+      "name": "Create a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "HAtthNdpTWnXYq0F",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "useCustomSchema": true,
+        "operation": "update",
+        "tableId": "leads",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "email",
+              "condition": "=eq",
+              "keyValue": "={{ $('Webhook').item.json.body.email }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "nombre",
+              "fieldValue": "={{ $('Webhook').item.json.body.nombre }}"
+            },
+            {
+              "fieldId": "telefono",
+              "fieldValue": "={{ $('Webhook').item.json.body.telefono }}"
+            },
+            {
+              "fieldId": "empresa",
+              "fieldValue": "={{ $('Webhook').item.json.body.empresa }}"
+            },
+            {
+              "fieldId": "tipo_proyecto",
+              "fieldValue": "={{ $('Webhook').item.json.body.tipo_proyecto }}"
+            },
+            {
+              "fieldId": "modalidad",
+              "fieldValue": "={{ $('Webhook').item.json.body.modalidad }}"
+            },
+            {
+              "fieldId": "mensaje",
+              "fieldValue": "={{ $('Webhook').item.json.body.mensaje }}"
+            },
+            {
+              "fieldId": "score",
+              "fieldValue": "={{ $json.score }}"
+            },
+            {
+              "fieldId": "clasificacion",
+              "fieldValue": "={{ $json.clasificacion }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1312,
+        48
+      ],
+      "id": "102031f0-6109-4ea6-b224-acc73c1ad0fb",
+      "name": "Update a row",
+      "credentials": {
+        "supabaseApi": {
+          "id": "HAtthNdpTWnXYq0F",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "Recibimos tu consulta, en breve te contactaremos — Sherman Automations",
+        "message": "=Hola {{ $json.nombre }},<br><br> Gracias por contactarte con Sherman Automations. Recibimos tu consulta sobre <strong>{{ $json.tipo_proyecto }}</strong> y la estamos revisando.<br><br> En breve nos vamos a poner en contacto para conversar los detalles de tu proyecto.<br><br> Si preferís adelantar la conversación, podés escribirme directo por <a href=\"https://wa.me/5491165327238\" target=\"_blank\">WhatsApp</a> o conectar conmigo en <a href=\"https://www.linkedin.com/in/german-pablo-morvillo\" target=\"_blank\">LinkedIn</a>.<br><br> Saludos,<br> Germán Pablo Morvillo<br> Sherman Automations",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        1536,
+        -144
+      ],
+      "id": "3593194e-4186-4b48-85f5-1691a2d8ec86",
+      "name": "Send a message",
+      "webhookId": "f46672ed-5b6f-4e13-9e29-f41c06fe64be",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LRWPXxO91Qe5Ooji",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "task": "MDIyMDQ3NTg1NDYzMzI1NzAwOTQ6MDow",
+        "title": "={{ $json.nombre }} - {{ $json.tipo_proyecto }}",
+        "additionalFields": {
+          "notes": "={{ $json.mensaje }} | Tel: {{ $json.telefono }} | Email: {{ $json.email }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleTasks",
+      "typeVersion": 1,
+      "position": [
+        1952,
+        -272
+      ],
+      "id": "6f3f7c62-beaa-4c7b-9db9-0aea87384540",
+      "name": "Create a task",
+      "credentials": {
+        "googleTasksOAuth2Api": {
+          "id": "S8srDjcT0IRZuFSR",
+          "name": "Google Tasks account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1694de79-9753-4053-b456-9f45be127540",
+              "leftValue": "={{ $json.clasificacion }}",
+              "rightValue": "caliente",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1744,
+        -144
+      ],
+      "id": "3fe31557-a0ae-4520-a331-22063dec75ab",
+      "name": "clasificacion"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Traemos el dato original del formulario, sin importar los nodos que pasamos en el medio\nconst data = $('Webhook').item.json.body;\n\n// Contador que vamos a ir sumando según las señales de interés del lead\nlet score = 0;\n\n// +2 si dejó teléfono (campo opcional) y no es solo espacios en blanco\nif (data.telefono && data.telefono.trim() !== '') score += 2;\n\n// +2 si eligió modalidad de largo plazo (mayor compromiso)\nif (data.modalidad === 'largo_plazo') score += 2;\n\n// +1 si eligió freelance o temporal (compromiso medio)\nif (data.modalidad === 'freelance' || data.modalidad === 'temporal') score += 1;\n\n// +3 si el tipo de proyecto es prioritario para tu negocio (automatización)\nif (data.tipo_proyecto === 'automatizacion') score += 3;\n\n// +3 si el tipo de proyecto es prioritario para tu negocio (consultoría)\nif (data.tipo_proyecto === 'consultoria') score += 3;\n\n// +1 si es IA aplicada (interesante, pero no tan prioritario como los dos de arriba)\nif (data.tipo_proyecto === 'ia') score += 1;\n\n// +1 si es una consulta de auditorías\nif (data.tipo_proyecto === 'auditorias') score += 1;\n\n// Corte de clasificación: 4 o más puntos = lead caliente, menos = lead frío\nconst clasificacion = score >= 4 ? 'caliente' : 'frio';\n\n// n8n necesita que el Code node devuelva un array de objetos con esta forma { json: {...} }\nreturn [{\n  json: {\n    ...data,\n    score: score,\n    clasificacion: clasificacion\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1088,
+        -48
+      ],
+      "id": "699730e0-ec01-476b-8488-2c14e63146fc",
+      "name": "scoring"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6fdae320-11a9-41e9-b895-03990a690e26",
+              "leftValue": "={{ $json.allowed }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        416,
+        -48
+      ],
+      "id": "3abadbcb-027b-48fe-8958-5da50e3f1c10",
+      "name": "If1"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        624,
+        48
+      ],
+      "id": "c7683da4-c01d-4edc-a048-ceeafab10cf7",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Anti-bot: honeypot + rate limit por IP\nconst body = $('Webhook').item.json.body;\nconst ip = $('Webhook').item.json.headers['x-real-ip'] || 'unknown';\n\n// IPs excluidas del rate limit (tu propia IP, para pruebas sin restricción)\nconst whitelist = ['186.127.195.205'];\n\n// Honeypot: si el campo trampa viene con contenido, es un bot\nif (body.website && body.website.trim() !== '') {\n  return [{ json: { allowed: false, reason: 'honeypot' } }];\n}\n\n// Si la IP está en la whitelist, se salta el rate limit directamente\nif (whitelist.includes(ip)) {\n  return [{ json: { allowed: true } }];\n}\n\n// Rate limit: máximo 3 envíos por IP cada 5 minutos\nconst staticData = $getWorkflowStaticData('global');\nstaticData.rateLimit = staticData.rateLimit || {};\n\nconst now = Date.now();\nconst windowMs = 5 * 60 * 1000; // 5 minutos\nconst maxRequests = 3;\n\nconst history = (staticData.rateLimit[ip] || []).filter(ts => now - ts < windowMs);\n\nif (history.length >= maxRequests) {\n  return [{ json: { allowed: false, reason: 'rate_limit' } }];\n}\n\nhistory.push(now);\nstaticData.rateLimit[ip] = history;\n\nreturn [{ json: { allowed: true } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        208,
+        -48
+      ],
+      "id": "7626c4c2-7439-4f14-b440-5cec7aac1381",
+      "name": "Anti-bot (honeypot + rate limit)"
+    }
+  ],
+  "pinData": {
+    "Webhook": [
+      {
+        "json": {
+          "headers": {
+            "connection": "upgrade",
+            "host": "n8n.shermanautomations.com",
+            "x-real-ip": "186.127.195.205",
+            "x-forwarded-for": "186.127.195.205",
+            "x-forwarded-proto": "https",
+            "content-length": "229",
+            "sec-ch-ua-platform": "\"Windows\"",
+            "user-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36 Edg/150.0.0.0",
+            "sec-ch-ua": "\"Not;A=Brand\";v=\"8\", \"Chromium\";v=\"150\", \"Microsoft Edge\";v=\"150\"",
+            "content-type": "application/json",
+            "sec-ch-ua-mobile": "?0",
+            "accept": "*/*",
+            "origin": "null",
+            "sec-fetch-site": "cross-site",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-dest": "empty",
+            "accept-encoding": "gzip, deflate, br, zstd",
+            "accept-language": "es-419,es;q=0.9,es-ES;q=0.8,en;q=0.7,en-GB;q=0.6,en-US;q=0.5,es-AR;q=0.4"
+          },
+          "params": {},
+          "query": {},
+          "body": {
+            "nombre": "German",
+            "email": "gerpruebas72@gmail.com",
+            "telefono": "5615156165165",
+            "empresa": "",
+            "tipo_proyecto": "automatizacion",
+            "modalidad": "largo_plazo",
+            "mensaje": "bvububhubu",
+            "origen": "landing shermanautomations.com",
+            "website": ""
+          },
+          "webhookUrl": "https://n8n.shermanautomations.com/webhook/leads",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Anti-bot (honeypot + rate limit)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many rows": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "scoring",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "scoring",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update a row": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a row": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "clasificacion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "clasificacion": {
+      "main": [
+        [
+          {
+            "node": "Create a task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scoring": {
+      "main": [
+        [
+          {
+            "node": "Create a row",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update a row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Get many rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anti-bot (honeypot + rate limit)": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false
+  },
+  "versionId": "5c987188-389e-47fd-b6e3-c5efc58e9efa",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "8fbea0faf9dc286a43fbdddfcb3a5248509f91b2780be6fe979508ff7b7cfa9b"
+  },
+  "nodeGroups": [],
+  "id": "m7ehqjdK6l2VTNMo",
+  "tags": [
+    {
+      "updatedAt": "2026-07-07T20:51:43.376Z",
+      "createdAt": "2026-07-07T20:51:43.376Z",
+      "id": "pyeEXGeLmIHDIWnl",
+      "name": "Sherman-automation-prod"
+    }
+  ]
+}

@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Germán Pablo Morvillo — Automatización & Ingeniería de Procesos</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy: #0F2438;
+    --navy-deep: #0A1B2B;
+    --paper: #EDE6D6;
+    --paper-dim: #C9C2B2;
+    --cyan: #7FB3D3;
+    --cyan-dim: rgba(127,179,211,0.28);
+    --amber: #E8A548;
+    --steel: #8A96A3;
+    --green: #5BAE8C;
+    --mono: 'IBM Plex Mono', monospace;
+    --sans: 'IBM Plex Sans', sans-serif;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  @media (prefers-reduced-motion: reduce){
+    html{scroll-behavior:auto;}
+    button.cta:hover{transform:none; box-shadow:none;}
+  }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible{
+    outline:2px solid var(--amber); outline-offset:3px;
+  }
+  body{
+    background:var(--navy);
+    color:var(--paper);
+    font-family:var(--sans);
+    line-height:1.6;
+    background-image:
+      linear-gradient(var(--cyan-dim) 1px, transparent 1px),
+      linear-gradient(90deg, var(--cyan-dim) 1px, transparent 1px);
+    background-size: 48px 48px;
+    background-attachment: fixed;
+  }
+  a{color:var(--cyan);}
+
+  .watermark-bg{
+    position:fixed; inset:0;
+    z-index:0;
+    pointer-events:none;
+    opacity:0.055;
+  }
+  .watermark-bg svg{width:100%; height:100%; display:block;}
+  body > .wrap{position:relative; z-index:1;}
+
+  .wrap{max-width:1140px; margin:0 auto; padding:0 28px;}
+
+  .reg-marks{position:relative;}
+  .reg-marks::before, .reg-marks::after{
+    content:"+";
+    position:absolute;
+    color:var(--steel);
+    font-family:var(--mono);
+    font-size:14px;
+    opacity:0.5;
+  }
+  .reg-marks::before{top:14px; left:14px;}
+  .reg-marks::after{top:14px; right:14px;}
+
+  header.hero{
+    border-bottom:1px solid rgba(127,179,211,0.35);
+    padding:64px 0 0 0;
+    position:relative;
+  }
+  nav{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:0 0 40px 0;
+    font-family:var(--mono); font-size:13px; letter-spacing:0.05em;
+    color:var(--steel);
+  }
+  nav .brand{color:var(--paper); font-weight:600;}
+  nav .brand span{color:var(--amber);}
+  nav a{color:var(--steel); text-decoration:none; margin-left:28px;}
+  nav a:hover{color:var(--cyan);}
+
+  .eyebrow{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.18em;
+    color:var(--amber); text-transform:uppercase; margin-bottom:22px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow::before{content:""; width:24px; height:1px; background:var(--amber); display:inline-block;}
+
+  h1.thesis{
+    font-family:var(--mono); font-weight:600;
+    font-size:clamp(32px, 5vw, 56px);
+    line-height:1.15;
+    max-width:820px;
+    color:var(--paper);
+    margin-bottom:26px;
+  }
+  h1.thesis em{
+    font-style:normal; color:var(--cyan);
+  }
+  .hero-sub{
+    max-width:560px; font-size:18px; color:var(--paper-dim); margin-bottom:48px;
+  }
+
+  .titleblock{
+    border:1px solid rgba(127,179,211,0.35);
+    display:grid;
+    grid-template-columns:repeat(4, 1fr);
+    margin-bottom:0;
+  }
+  .titleblock .cell{
+    padding:16px 20px;
+    border-right:1px solid rgba(127,179,211,0.35);
+    border-top:1px solid rgba(127,179,211,0.35);
+  }
+  .titleblock .cell:last-child{border-right:none;}
+  .titleblock .label{
+    font-family:var(--mono); font-size:10px; letter-spacing:0.12em;
+    color:var(--steel); text-transform:uppercase; margin-bottom:6px;
+  }
+  .titleblock .value{
+    font-family:var(--mono); font-size:20px; font-weight:600; color:var(--paper);
+  }
+  .titleblock .value small{font-size:12px; color:var(--steel); font-weight:400; display:block; margin-top:2px;}
+
+  @media (max-width: 720px){
+    .titleblock{grid-template-columns:repeat(2, 1fr);}
+  }
+
+  section{padding:96px 0;}
+  .section-head{margin-bottom:56px; max-width:640px;}
+  .section-tag{
+    font-family:var(--mono); font-size:12px; letter-spacing:0.16em;
+    color:var(--cyan); text-transform:uppercase; margin-bottom:14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  .section-tag .dwg{color:var(--steel);}
+  h2.section-title{
+    font-family:var(--mono); font-weight:600;
+    font-size:clamp(26px, 3.4vw, 38px);
+    color:var(--paper);
+  }
+  .section-desc{color:var(--paper-dim); font-size:16px; margin-top:14px;}
+
+  .schematic{
+    position:relative;
+  }
+  .flow-line{
+    position:absolute;
+    left:29px; top:0; bottom:0;
+    width:1px;
+    background:repeating-linear-gradient(to bottom, var(--cyan) 0, var(--cyan) 6px, transparent 6px, transparent 12px);
+    opacity:0.5;
+  }
+  .mod{
+    position:relative;
+    display:grid;
+    grid-template-columns:60px 1fr;
+    gap:24px;
+    padding:26px 0;
+    border-bottom:1px solid rgba(127,179,211,0.18);
+  }
+  .mod:last-child{border-bottom:none;}
+  .mod-id{
+    font-family:var(--mono); font-size:13px; color:var(--navy);
+    background:var(--cyan);
+    width:60px; height:60px; border-radius:2px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; letter-spacing:0.02em;
+    position:relative; z-index:1;
+  }
+  .mod-body h3{
+    font-family:var(--mono); font-size:19px; color:var(--paper); font-weight:600; margin-bottom:8px;
+  }
+  .mod-body p{color:var(--paper-dim); font-size:15.5px; max-width:620px;}
+  .mod-body .tools{
+    margin-top:10px; font-family:var(--mono); font-size:12px; color:var(--steel);
+    letter-spacing:0.03em;
+  }
+  .mod-body .tools span{color:var(--amber);}
+
+  .spec-grid{
+    display:grid; grid-template-columns:1.3fr 1fr; gap:64px;
+    align-items:start;
+  }
+  @media (max-width:860px){ .spec-grid{grid-template-columns:1fr;} }
+  .spec-copy p{color:var(--paper-dim); margin-bottom:18px; font-size:16px; max-width:580px;}
+  .spec-copy strong{color:var(--paper); font-weight:600;}
+
+  .dims{
+    border:1px solid rgba(127,179,211,0.35);
+  }
+  .dim-row{
+    display:flex; justify-content:space-between; align-items:center;
+    padding:18px 22px; border-bottom:1px solid rgba(127,179,211,0.2);
+    font-family:var(--mono);
+  }
+  .dim-row:last-child{border-bottom:none;}
+  .dim-row .k{font-size:12px; color:var(--steel); letter-spacing:0.05em; text-transform:uppercase;}
+  .dim-row .v{font-size:18px; color:var(--cyan); font-weight:600;}
+
+  .workorder{
+    border:1px dashed rgba(127,179,211,0.5);
+    padding:44px;
+    position:relative;
+    background: rgba(10,27,43,0.4);
+  }
+  .workorder::before{
+    content:"ORDEN DE TRABAJO — OT-001";
+    position:absolute; top:-11px; left:44px;
+    background:var(--navy); padding:0 10px;
+    font-family:var(--mono); font-size:11px; letter-spacing:0.1em; color:var(--steel);
+  }
+  @media (max-width:640px){ .workorder{padding:28px;} }
+
+  .form-grid{
+    display:grid; grid-template-columns:1fr 1fr; gap:22px 24px; margin-top:8px;
+  }
+  @media (max-width:640px){ .form-grid{grid-template-columns:1fr;} }
+  .field{display:flex; flex-direction:column;}
+  .field.full{grid-column:1 / -1;}
+  .field label{
+    font-family:var(--mono); font-size:11px; letter-spacing:0.1em; text-transform:uppercase;
+    color:var(--steel); margin-bottom:8px;
+  }
+  .field input, .field select, .field textarea{
+    background:transparent;
+    border:none; border-bottom:1px solid rgba(127,179,211,0.4);
+    color:var(--paper); font-family:var(--sans); font-size:15px;
+    padding:9px 2px; outline:none;
+  }
+  .field select{ appearance:none; -webkit-appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%237FB3D3'><path d='M5 7l5 6 5-6z'/></svg>");
+    background-repeat:no-repeat; background-position:right 2px center;
+  }
+  .field select option{background:var(--navy-deep); color:var(--paper);}
+  .field input:focus, .field select:focus, .field textarea:focus{
+    border-bottom-color:var(--amber);
+  }
+  .field textarea{resize:vertical; min-height:90px; font-family:var(--sans);}
+
+  .submit-row{
+    margin-top:30px; display:flex; align-items:center; gap:18px; flex-wrap:wrap;
+  }
+  button.cta{
+    font-family:var(--mono); font-size:13px; letter-spacing:0.06em; text-transform:uppercase;
+    background:var(--amber); color:var(--navy-deep); border:none;
+    padding:15px 30px; font-weight:700; cursor:pointer;
+    transition:transform 0.15s ease, box-shadow 0.15s ease;
+  }
+  button.cta:hover{ transform:translateY(-1px); box-shadow:0 6px 0 rgba(0,0,0,0.15); }
+  button.cta:disabled{opacity:0.6; cursor:not-allowed; transform:none;}
+  .form-msg{font-family:var(--mono); font-size:13px;}
+  .form-msg.ok{color:var(--green);}
+  .form-msg.err{color:#e07a5f;}
+
+  footer{
+    border-top:1px solid rgba(127,179,211,0.35);
+    padding:34px 0;
+  }
+  .foot-row{
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+    font-family:var(--mono); font-size:12px; color:var(--steel); letter-spacing:0.04em;
+  }
+  .foot-row a{color:var(--steel); text-decoration:none; margin-right:20px;}
+  .foot-row a:hover{color:var(--cyan);}
+  .foot-tag{color:var(--amber);}
+
+  ::selection{background:var(--amber); color:var(--navy-deep);}
+
+  .n8n-window{
+    border:1px solid rgba(127,179,211,0.35);
+    background:rgba(10,27,43,0.55);
+    overflow:hidden;
+  }
+  .n8n-titlebar{
+    display:flex; align-items:center; gap:16px;
+    padding:14px 18px;
+    border-bottom:1px solid rgba(127,179,211,0.25);
+    font-family:var(--mono);
+  }
+  .dots{display:flex; gap:6px;}
+  .dots span{width:9px; height:9px; border-radius:50%; background:rgba(127,179,211,0.3); display:inline-block;}
+  .n8n-title{font-size:12px; color:var(--steel); letter-spacing:0.03em; flex:1;}
+  .n8n-status{
+    font-size:11px; color:var(--green); display:flex; align-items:center; gap:7px;
+    letter-spacing:0.04em;
+  }
+  .dot-ok{width:7px; height:7px; border-radius:50%; background:var(--green); display:inline-block; box-shadow:0 0 6px var(--green);}
+
+  .flow-svg{width:100%; height:auto; display:block; padding:18px 10px 6px;}
+
+  .n8n-log{
+    border-top:1px solid rgba(127,179,211,0.2);
+    padding:16px 22px 20px;
+    display:flex; flex-direction:column; gap:6px;
+  }
+  .log-line{font-family:var(--mono); font-size:12.5px; color:var(--paper-dim);}
+  .log-ok{color:var(--green); margin-right:8px;}
+
+  @media (max-width:720px){
+    .n8n-title{font-size:10.5px;}
+    .n8n-status{font-size:10px;}
+  }
+</style>
+</head>
+<body>
+
+<div class="watermark-bg" aria-hidden="true">
+  <svg xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <pattern id="engMarks" width="460" height="460" patternUnits="userSpaceOnUse" patternTransform="rotate(0)">
+        <g transform="translate(30,20)" fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round">
+          <circle cx="30" cy="10" r="7"/>
+          <line x1="30" y1="17" x2="10" y2="70"/>
+          <line x1="30" y1="17" x2="50" y2="70"/>
+          <line x1="8" y1="74" x2="14" y2="66"/>
+          <circle cx="50" cy="72" r="2.4" fill="#FFFFFF" stroke="none"/>
+        </g>
+        <g transform="translate(180,30)" fill="none" stroke="#FFFFFF" stroke-width="2">
+          <path d="M0,40 A40,40 0 0 1 80,40"/>
+          <line x1="0" y1="40" x2="80" y2="40"/>
+          <line x1="40" y1="40" x2="40" y2="2"/>
+          <line x1="40" y1="40" x2="12" y2="12"/>
+          <line x1="40" y1="40" x2="68" y2="12"/>
+        </g>
+        <g transform="translate(330,60)" fill="none" stroke="#FFFFFF" stroke-width="2">
+          <circle cx="0" cy="0" r="16"/>
+          <circle cx="0" cy="0" r="5"/>
+          <line x1="0" y1="-22" x2="0" y2="-16"/>
+          <line x1="0" y1="22" x2="0" y2="16"/>
+          <line x1="-22" y1="0" x2="-16" y2="0"/>
+          <line x1="22" y1="0" x2="16" y2="0"/>
+          <line x1="-15.5" y1="-15.5" x2="-11" y2="-11"/>
+          <line x1="15.5" y1="15.5" x2="11" y2="11"/>
+          <line x1="-15.5" y1="15.5" x2="-11" y2="11"/>
+          <line x1="15.5" y1="-15.5" x2="11" y2="-11"/>
+        </g>
+        <g transform="translate(40,150)" fill="none" stroke="#FFFFFF" stroke-width="1.8">
+          <rect x="0" y="0" width="120" height="18"/>
+          <line x1="12" y1="0" x2="12" y2="9"/>
+          <line x1="24" y1="0" x2="24" y2="14"/>
+          <line x1="36" y1="0" x2="36" y2="9"/>
+          <line x1="48" y1="0" x2="48" y2="9"/>
+          <line x1="60" y1="0" x2="60" y2="14"/>
+          <line x1="72" y1="0" x2="72" y2="9"/>
+          <line x1="84" y1="0" x2="84" y2="9"/>
+          <line x1="96" y1="0" x2="96" y2="14"/>
+          <line x1="108" y1="0" x2="108" y2="9"/>
+        </g>
+        <text x="220" y="160" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="34" font-weight="600">Σ</text>
+        <text x="270" y="185" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="20">f(x)=∫x</text>
+        <text x="30" y="230" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="26">Δt / Δp</text>
+        <text x="330" y="150" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="30">π</text>
+        <text x="200" y="230" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="18">η = out/in</text>
+        <g transform="translate(50,270)" fill="none" stroke="#FFFFFF" stroke-width="2">
+          <rect x="0" y="0" width="60" height="34" rx="3"/>
+          <line x1="70" y1="17" x2="105" y2="17"/>
+          <polygon points="105,17 97,12 97,22" fill="#FFFFFF" stroke="none"/>
+          <polygon points="150,0 180,17 150,34 120,17" />
+        </g>
+        <g transform="translate(370,220) rotate(20)" fill="none" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round">
+          <circle cx="0" cy="0" r="5"/>
+          <line x1="0" y1="5" x2="-14" y2="46"/>
+          <line x1="0" y1="5" x2="14" y2="46"/>
+          <circle cx="14" cy="48" r="1.8" fill="#FFFFFF" stroke="none"/>
+        </g>
+        <text x="20" y="340" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="16">DMAIC</text>
+        <text x="150" y="340" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="22">Cp / Cpk</text>
+        <text x="300" y="330" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="28">∞</text>
+        <text x="330" y="380" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="18">{ JSON }</text>
+        <text x="60" y="410" fill="#FFFFFF" font-family="IBM Plex Mono, monospace" font-size="20">6σ</text>
+        <g transform="translate(230,260)" fill="none" stroke="#FFFFFF" stroke-width="1.8">
+          <polygon points="0,60 0,0 60,60"/>
+          <line x1="6" y1="54" x2="12" y2="54"/>
+          <line x1="6" y1="42" x2="12" y2="42"/>
+          <line x1="6" y1="30" x2="12" y2="30"/>
+        </g>
+      </pattern>
+    </defs>
+    <rect width="100%" height="100%" fill="url(#engMarks)"/>
+  </svg>
+</div>
+
+<div class="wrap">
+
+  <header class="hero reg-marks">
+    <nav>
+      <div class="brand">SHERMAN<span>·</span>AUTOMATIONS</div>
+      <div>
+        <a href="#servicios">Servicios</a>
+        <a href="#sobre-mi">Sobre mí</a>
+        <a href="#contacto">Contacto</a>
+      </div>
+    </nav>
+
+    <div class="eyebrow">Ingeniería de procesos · Automatización · IA aplicada</div>
+    <h1 class="thesis">No automatizo procesos que no <em>entiendo</em> primero.</h1>
+    <p class="hero-sub">15+ años optimizando procesos reales, ahora aplicados a n8n, IA y automatización — con la mirada de un ingeniero industrial, no la de alguien que solo conecta APIs.</p>
+
+    <div class="titleblock">
+      <div class="cell">
+        <div class="label">Ingeniero</div>
+        <div class="value">Germán P. Morvillo<small>Ing. Industrial</small></div>
+      </div>
+      <div class="cell">
+        <div class="label">Experiencia</div>
+        <div class="value">15+ años<small>Mejora de procesos</small></div>
+      </div>
+      <div class="cell">
+        <div class="label">Certificación</div>
+        <div class="value">Six Sigma<small>Green Belt · UTN</small></div>
+      </div>
+      <div class="cell">
+        <div class="label">Estado</div>
+        <div class="value" style="color:var(--amber);">Disponible<small>#opentowork</small></div>
+      </div>
+    </div>
+  </header>
+
+  <section id="servicios">
+    <div class="section-head">
+      <div class="section-tag"><span class="dwg">DWG-02 /</span> Servicios</div>
+      <h2 class="section-title">Cinco módulos, un mismo criterio</h2>
+      <p class="section-desc">Cada servicio parte del mismo lugar: entender el proceso real antes de tocar una sola herramienta.</p>
+    </div>
+
+    <div class="schematic">
+      <div class="flow-line"></div>
+
+      <div class="mod">
+        <div class="mod-id">01</div>
+        <div class="mod-body">
+          <h3>Automatización de procesos</h3>
+          <p>Eliminación de tareas manuales repetitivas mediante flujos automatizados, integraciones API y disparadores por webhook.</p>
+          <div class="tools">Stack: <span>n8n</span> · <span>RPA</span> · <span>APIs & Webhooks</span></div>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-id">02</div>
+        <div class="mod-body">
+          <h3>IA aplicada</h3>
+          <p>Agentes y modelos de lenguaje integrados a flujos reales de negocio — no demos, procesos que corren en producción.</p>
+          <div class="tools">Stack: <span>Claude</span> · <span>Agentes</span> · <span>LLMs</span></div>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-id">03</div>
+        <div class="mod-body">
+          <h3>Consultoría de procesos</h3>
+          <p>Reducción de variabilidad, desperdicio y retrabajo con metodología Lean Six Sigma sobre procesos existentes.</p>
+          <div class="tools">Método: <span>DMAIC</span> · <span>Lean</span> · <span>Six Sigma Green Belt</span></div>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-id">04</div>
+        <div class="mod-body">
+          <h3>Análisis funcional</h3>
+          <p>Relevamiento de requerimientos y mapeo de procesos para que cualquier equipo técnico entienda qué hay que construir.</p>
+          <div class="tools">Notación: <span>BPMN 2.0</span> · <span>SIPOC</span></div>
+        </div>
+      </div>
+
+      <div class="mod">
+        <div class="mod-id">05</div>
+        <div class="mod-body">
+          <h3>Gestión de proyectos & change management</h3>
+          <p>Planificación de la implementación y gestión de la adopción — la automatización más elegante no sirve si el equipo no la usa.</p>
+          <div class="tools">Enfoque: <span>Planificación</span> · <span>Adopción</span> · <span>Gestión del cambio</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ejecucion">
+    <div class="section-head">
+      <div class="section-tag"><span class="dwg">DWG-02.5 /</span> En producción</div>
+      <h2 class="section-title">Esto no es un mockup, es el flujo real</h2>
+      <p class="section-desc">Así se ve la ejecución del workflow que procesa este mismo formulario — de punta a punta, sin intervención manual.</p>
+    </div>
+
+    <div class="n8n-window">
+      <div class="n8n-titlebar">
+        <div class="dots"><span></span><span></span><span></span></div>
+        <div class="n8n-title">n8n — Editor · captura-leads-landing</div>
+        <div class="n8n-status">
+          <span class="dot-ok"></span> Success · 842ms
+        </div>
+      </div>
+
+      <svg viewBox="0 0 900 220" xmlns="http://www.w3.org/2000/svg" class="flow-svg">
+        <path d="M 130 110 H 230" stroke="#5BAE8C" stroke-width="2" fill="none"/>
+        <path d="M 360 110 H 460" stroke="#5BAE8C" stroke-width="2" fill="none"/>
+        <path d="M 590 110 H 690" stroke="#5BAE8C" stroke-width="2" fill="none"/>
+        <polygon points="230,110 220,105 220,115" fill="#5BAE8C"/>
+        <polygon points="460,110 450,105 450,115" fill="#5BAE8C"/>
+        <polygon points="690,110 680,105 680,115" fill="#5BAE8C"/>
+
+        <g>
+          <rect x="20" y="75" width="110" height="70" rx="6" fill="#0A1B2B" stroke="#7FB3D3" stroke-width="1.5"/>
+          <circle cx="45" cy="95" r="4" fill="#E8A548"/>
+          <text x="35" y="118" fill="#EDE6D6" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600">Webhook</text>
+          <text x="35" y="133" fill="#8A96A3" font-family="IBM Plex Mono, monospace" font-size="10">Trigger</text>
+        </g>
+
+        <g>
+          <rect x="230" y="75" width="130" height="70" rx="6" fill="#0A1B2B" stroke="#7FB3D3" stroke-width="1.5"/>
+          <circle cx="255" cy="95" r="4" fill="#7FB3D3"/>
+          <text x="245" y="118" fill="#EDE6D6" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600">Validar datos</text>
+          <text x="245" y="133" fill="#8A96A3" font-family="IBM Plex Mono, monospace" font-size="10">Code node</text>
+        </g>
+
+        <g>
+          <rect x="460" y="75" width="130" height="70" rx="6" fill="#0A1B2B" stroke="#7FB3D3" stroke-width="1.5"/>
+          <circle cx="485" cy="95" r="4" fill="#7FB3D3"/>
+          <text x="475" y="118" fill="#EDE6D6" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600">Guardar lead</text>
+          <text x="475" y="133" fill="#8A96A3" font-family="IBM Plex Mono, monospace" font-size="10">Supabase</text>
+        </g>
+
+        <g>
+          <rect x="690" y="75" width="130" height="70" rx="6" fill="#0A1B2B" stroke="#5BAE8C" stroke-width="1.5"/>
+          <circle cx="715" cy="95" r="4" fill="#5BAE8C"/>
+          <text x="705" y="118" fill="#EDE6D6" font-family="IBM Plex Mono, monospace" font-size="12" font-weight="600">Notificar</text>
+          <text x="705" y="133" fill="#8A96A3" font-family="IBM Plex Mono, monospace" font-size="10">Email/Telegram</text>
+          <path d="M 745 100 l 6 6 l 10 -12" stroke="#5BAE8C" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+      </svg>
+
+      <div class="n8n-log">
+        <span class="log-line"><span class="log-ok">✓</span> Webhook recibido — payload validado</span>
+        <span class="log-line"><span class="log-ok">✓</span> Lead insertado en Supabase (tabla: leads)</span>
+        <span class="log-line"><span class="log-ok">✓</span> Notificación enviada — ejecución finalizada en 842ms</span>
+      </div>
+    </div>
+  </section>
+
+  <section id="sobre-mi">
+    <div class="section-head">
+      <div class="section-tag"><span class="dwg">DWG-03 /</span> Sobre mí</div>
+      <h2 class="section-title">De la línea de producción al flujo de datos</h2>
+    </div>
+
+    <div class="spec-grid">
+      <div class="spec-copy">
+        <p>Soy <strong>Germán Pablo Morvillo</strong>, Ingeniero Industrial con más de 15 años trabajando en mejora de procesos — Lean, Six Sigma, reducción de variabilidad, eliminación de desperdicio. Ese fue mi oficio antes de que existiera una herramienta no-code para cada cosa.</p>
+        <p>Hoy aplico ese mismo criterio a la automatización, la IA y la transformación digital: <strong>entender el proceso de negocio antes de tocar una sola herramienta</strong>. La diferencia entre automatizar bien y automatizar rápido casi siempre está ahí.</p>
+        <p>Estoy construyendo mi portfolio en público — cada automatización documentada, publicada y con sus aprendizajes reales, errores incluidos.</p>
+      </div>
+
+      <div class="dims">
+        <div class="dim-row"><span class="k">Formación</span><span class="v">Ing. Industrial</span></div>
+        <div class="dim-row"><span class="k">Certificación</span><span class="v">Six Sigma GB</span></div>
+        <div class="dim-row"><span class="k">Experiencia</span><span class="v">15+ años</span></div>
+        <div class="dim-row"><span class="k">Portfolio</span><span class="v"><a href="https://github.com/sher414/Process" target="_blank" rel="noopener">GitHub ↗</a></span></div>
+        <div class="dim-row"><span class="k">Idiomas</span><span class="v">ES / EN</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="contacto">
+    <div class="section-head">
+      <div class="section-tag"><span class="dwg">DWG-04 /</span> Contacto</div>
+      <h2 class="section-title">Iniciar una orden de trabajo</h2>
+      <p class="section-desc">Contame brevemente tu proceso o proyecto — te respondo directamente, sin intermediarios.</p>
+    </div>
+
+    <div class="workorder">
+      <form id="lead-form">
+        <div class="form-grid">
+          <div class="field">
+            <label for="nombre">Nombre y apellido</label>
+            <input type="text" id="nombre" name="nombre" required>
+          </div>
+          <div class="field">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+          </div>
+          <div class="field">
+            <label for="telefono">Teléfono</label>
+            <input type="tel" id="telefono" name="telefono" placeholder="+54 9 11 ...">
+          </div>
+          <div class="field">
+            <label for="empresa">Empresa</label>
+            <input type="text" id="empresa" name="empresa">
+          </div>
+          <div class="field">
+            <label for="tipo">Tipo de proyecto</label>
+            <select id="tipo" name="tipo_proyecto" required>
+              <option value="" disabled selected>Elegí una opción</option>
+              <option value="automatizacion">Automatización de procesos</option>
+              <option value="ia">IA aplicada</option>
+              <option value="consultoria">Consultoría de procesos (Lean/Six Sigma)</option>
+              <option value="analisis">Análisis funcional</option>
+              <option value="gestion">Gestión de proyectos / Change management</option>
+              <option value="capacitaciones">Capacitaciones corporativas</option>
+              <option value="auditorias">Auditorías (operativas / calidad / encubiertas / externas)</option>
+              <option value="otro">Otro</option>
+            </select>
+          </div>
+          </div>
+          <div class="field">
+            <label for="modalidad">Modalidad</label>
+            <select id="modalidad" name="modalidad" required>
+              <option value="" disabled selected>Elegí una opción</option>
+              <option value="freelance">Freelance</option>
+              <option value="temporal">Temporal</option>
+              <option value="por_horas">Por horas</option>
+              <option value="largo_plazo">Largo plazo</option>
+            </select>
+          </div>
+          <div class="field full">
+            <label for="mensaje">Mensaje</label>
+            <textarea id="mensaje" name="mensaje" required maxlength="1000" placeholder="Contame en pocas líneas qué proceso o problema tenés en mente..."></textarea>
+          </div>
+
+          <!-- Honeypot anti-bot: invisible para humanos, los bots que autocompletan todo suelen caer acá -->
+          <div class="field" style="position:absolute; left:-9999px; top:-9999px; height:0; overflow:hidden;" aria-hidden="true">
+            <label for="website">No completar este campo</label>
+            <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+          </div>
+        </div>
+
+        <div class="submit-row">
+          <button type="submit" class="cta" id="submit-btn">Enviar solicitud</button>
+          <span class="form-msg" id="form-msg"></span>
+        </div>
+      </form>
+    </div>
+  </section>
+
+  <footer>
+    <div class="foot-row">
+      <div>
+        <a href="mailto:germanmorvillo@gmail.com">germanmorvillo@gmail.com</a>
+        <a href="https://wa.me/5491165327238" target="_blank" rel="noopener">WhatsApp</a>
+        <a href="https://www.linkedin.com/in/german-pablo-morvillo" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/sher414/Process" target="_blank" rel="noopener">GitHub</a>
+      </div>
+      <div class="foot-tag">#opentowork #opentoproject</div>
+    </div>
+  </footer>
+
+</div>
+
+<script>
+  const WEBHOOK_URL = "https://n8n.shermanautomations.com/webhook/leads";
+
+  const form = document.getElementById('lead-form');
+  const btn = document.getElementById('submit-btn');
+  const msg = document.getElementById('form-msg');
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    msg.textContent = '';
+    msg.className = 'form-msg';
+    btn.disabled = true;
+    btn.textContent = 'Enviando...';
+
+    const data = {
+      nombre: form.nombre.value,
+      email: form.email.value,
+      telefono: form.telefono.value,
+      empresa: form.empresa.value,
+      tipo_proyecto: form.tipo_proyecto.value,
+      modalidad: form.modalidad.value,
+      mensaje: form.mensaje.value,
+      origen: 'landing shermanautomations.com',
+      website: form.website.value
+    };
+
+    try {
+      const res = await fetch(WEBHOOK_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      });
+      if (!res.ok) throw new Error('respuesta no OK');
+      msg.textContent = '✓ Solicitud enviada. Te respondo a la brevedad.';
+      msg.classList.add('ok');
+      form.reset();
+    } catch (err) {
+      msg.textContent = '✕ No se pudo enviar. Escribime directo a germanmorvillo@gmail.com';
+      msg.classList.add('err');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Enviar solicitud';
+    }
+  });
+</script>
+
+</body>
+</html>
