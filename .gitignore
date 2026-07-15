@@ -1,0 +1,28 @@
+# Variables de entorno y secretos
+.env
+.env.*
+*.env
+
+# Credenciales de Google Cloud (Service Account)
+*service-account*.json
+*-gcloud-*.json
+n8n-pruebas-gcloud-*.json
+
+# Docker
+docker-compose.override.yml
+docker-compose.local.yml
+
+# n8n local
+.n8n/
+n8n-vps/data/config
+
+# Node
+node_modules/
+
+# Archivos de sistema
+.DS_Store
+Thumbs.db
+
+# Editores
+.vscode/
+.idea/
