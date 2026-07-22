@@ -1,0 +1,8 @@
+Precalentamiento,20
+Tecnica individual,60
+Estrategia tactica,60
+Repiqueteo,40
+Trabajo de definicion,70
+Pases largos,60
+Trabajo fisico,100
+Recuperacion y estiramiento,70

@@ -1,0 +1,12 @@
+Precalentamiento,20
+Trabajo tecnico,30
+Pases cortos,25
+Pases largos,25
+Definicion,30
+Trabajo tactico,40
+Marcaje,30
+Velocidad,30
+Resistencia,40
+Trabajo con pelota parada,30
+Charla tecnica,20
+Recuperacion,80

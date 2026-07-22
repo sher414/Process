@@ -1,0 +1,9 @@
+Precalentamiento,20
+Trabajo tecnico individual,50
+Definicion,60
+Trabajo tactico,60
+Trabajo fisico,80
+Velocidad,40
+Trabajo con pelota parada,50
+Recuperacion,50
+Charla tecnica,40

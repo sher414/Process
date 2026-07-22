@@ -1,0 +1,4 @@
+Precalentamiento,20
+Trabajo tactico,50
+Pases,40
+Recuperacion,40

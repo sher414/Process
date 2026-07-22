@@ -1,0 +1,8 @@
+Precalentamiento,30
+Trabajo de reflejos,60
+Entrenamiento de saques,60
+Trabajo con pelota,45
+Ejercicios de salidas,60
+Trabajo tactico con la linea,75
+Trabajo fisico,90
+Recuperacion y estiramiento,60

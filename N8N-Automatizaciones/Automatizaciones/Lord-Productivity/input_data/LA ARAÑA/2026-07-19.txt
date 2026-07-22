@@ -1,0 +1,5 @@
+Precalentamiento,30
+Trabajo de reflejos,60
+Entrenamiento de saques,90
+Trabajo fisico,90
+Recuperacion y estiramiento,30
